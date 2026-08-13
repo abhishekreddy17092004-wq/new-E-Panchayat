@@ -1,89 +1,1100 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Welcome to Firebase Hosting</title>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>E-Panchayat Smart Complaint System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- update the version number as needed -->
-    <script defer src="/__/firebase/12.17.1/firebase-app-compat.js"></script>
-    <!-- include only the Firebase features as you need -->
-    <script defer src="/__/firebase/12.17.1/firebase-auth-compat.js"></script>
-    <script defer src="/__/firebase/12.17.1/firebase-database-compat.js"></script>
-    <script defer src="/__/firebase/12.17.1/firebase-firestore-compat.js"></script>
-    <script defer src="/__/firebase/12.17.1/firebase-functions-compat.js"></script>
-    <script defer src="/__/firebase/12.17.1/firebase-messaging-compat.js"></script>
-    <script defer src="/__/firebase/12.17.1/firebase-storage-compat.js"></script>
-    <script defer src="/__/firebase/12.17.1/firebase-analytics-compat.js"></script>
-    <script defer src="/__/firebase/12.17.1/firebase-remote-config-compat.js"></script>
-    <script defer src="/__/firebase/12.17.1/firebase-performance-compat.js"></script>
-    <!-- 
-      initialize the SDK after all desired features are loaded, set useEmulator to false
-      to avoid connecting the SDK to running emulators.
-    -->
-    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+  <!-- Advanced Creative CSS -->
+  <style>
+    :root {
+      --bg-gradient: radial-gradient(circle at top left, #0f172a 0, #020617 40%, #000000 90%);
+      --glass-bg: rgba(15, 23, 42, 0.82);
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.25);
+      --primary: #4f46e5;
+      --primary-soft: rgba(79, 70, 229, 0.32);
+      --danger: #f97373;
+      --success: #22c55e;
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --border-soft: rgba(148, 163, 184, 0.35);
+      --shadow-strong: 0 24px 80px rgba(15, 23, 42, 0.85);
+      --round-xl: 18px;
+    }
 
-    <style media="screen">
-      body { background: #ECEFF1; color: rgba(0,0,0,0.87); font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
-      #message { background: white; max-width: 360px; margin: 100px auto 16px; padding: 32px 24px; border-radius: 3px; }
-      #message h2 { color: #ffa100; font-weight: bold; font-size: 16px; margin: 0 0 8px; }
-      #message h1 { font-size: 22px; font-weight: 300; color: rgba(0,0,0,0.6); margin: 0 0 16px;}
-      #message p { line-height: 140%; margin: 16px 0 24px; font-size: 14px; }
-      #message a { display: block; text-align: center; background: #039be5; text-transform: uppercase; text-decoration: none; color: white; padding: 16px; border-radius: 4px; }
-      #message, #message a { box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); }
-      #load { color: rgba(0,0,0,0.4); text-align: center; font-size: 13px; }
-      @media (max-width: 600px) {
-        body, #message { margin-top: 0; background: white; box-shadow: none; }
-        body { border-top: 16px solid #ffa100; }
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Animated background accents */
+    .orb {
+      position: fixed;
+      border-radius: 999px;
+      filter: blur(60px);
+      opacity: 0.45;
+      pointer-events: none;
+      z-index: -1;
+    }
+    .orb.orb-1 {
+      width: 280px;
+      height: 280px;
+      background: rgba(56, 189, 248, 0.45);
+      top: 6%;
+      left: 6%;
+      animation: float1 16s infinite alternate ease-in-out;
+    }
+    .orb.orb-2 {
+      width: 260px;
+      height: 260px;
+      background: rgba(79, 70, 229, 0.45);
+      bottom: 4%;
+      right: 8%;
+      animation: float2 18s infinite alternate ease-in-out;
+    }
+
+    @keyframes float1 {
+      from { transform: translate3d(0,0,0); }
+      to { transform: translate3d(40px, 20px, 0); }
+    }
+    @keyframes float2 {
+      from { transform: translate3d(0,0,0); }
+      to { transform: translate3d(-20px, -40px, 0); }
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 1040px;
+      padding: 20px;
+    }
+
+    .glass {
+      background: var(--glass-bg);
+      border-radius: 26px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      box-shadow: var(--shadow-strong);
+      backdrop-filter: blur(20px) saturate(150%);
+      padding: 22px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .glass::before {
+      content: "";
+      position: absolute;
+      inset: -80px;
+      background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.22), transparent 60%);
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    header.app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .logo-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: conic-gradient(from 230deg, #4f46e5, #22c55e, #38bdf8, #4f46e5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.9);
+    }
+    .logo-mark span {
+      font-weight: 800;
+      font-size: 18px;
+      color: #0b1120;
+    }
+
+    .header-text {
+      flex: 1;
+    }
+
+    .app-title {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .app-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .status-chip {
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 11px;
+      border: 1px solid var(--border-soft);
+      background: rgba(15, 23, 42, 0.9);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-muted);
+    }
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.35);
+    }
+
+    /* Tab navigation for Citizen / Admin */
+    .tab-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .tab {
+      flex: 1;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.32);
+      background: rgba(15, 23, 42, 0.9);
+      padding: 8px 12px;
+      font-size: 13px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+
+    .tab span.icon {
+      font-size: 14px;
+    }
+
+    .tab.active {
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.28), rgba(56, 189, 248, 0.28));
+      border-color: rgba(56, 189, 248, 0.65);
+      color: var(--text-main);
+      box-shadow: 0 8px 18px rgba(56, 189, 248, 0.35);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(0, 1.1fr);
+      gap: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 840px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
       }
-    </style>
-  </head>
-  <body>
-    <div id="message">
-      <h2>Welcome</h2>
-      <h1>Firebase Hosting Setup Complete</h1>
-      <p>You're seeing this because you've successfully setup Firebase Hosting. Now it's time to go build something extraordinary!</p>
-      <a target="_blank" href="https://firebase.google.com/docs/hosting/">Open Hosting Documentation</a>
-    </div>
-    <p id="load">Firebase SDK Loading&hellip;</p>
+    }
 
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        const loadEl = document.querySelector('#load');
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-        // // The Firebase SDK is initialized and available here!
-        //
-        // firebase.auth().onAuthStateChanged(user => { });
-        // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
-        // firebase.firestore().doc('/foo/bar').get().then(() => { });
-        // firebase.functions().httpsCallable('yourFunction')().then(() => { });
-        // firebase.messaging().requestPermission().then(() => { });
-        // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
-        // firebase.analytics(); // call to activate
-        // firebase.analytics().logEvent('tutorial_completed');
-        // firebase.performance(); // call to activate
-        //
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+    .panel {
+      border-radius: var(--round-xl);
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      background: rgba(15, 23, 42, 0.85);
+      padding: 16px 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.24), transparent 60%);
+      opacity: 0.35;
+      pointer-events: none;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .panel-title {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .panel-caption {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .panel-badge {
+      font-size: 11px;
+      border-radius: 999px;
+      padding: 4px 10px;
+      border: 1px solid rgba(56, 189, 248, 0.6);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-main);
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px 10px;
+    }
+
+    .field-group {
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    label {
+      font-size: 12px;
+      font-weight: 500;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      background: #020617;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--accent);
+      background: #0b1120;
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.7);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 70px;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 8px 16px;
+      background: linear-gradient(135deg, var(--primary), #6366f1);
+      color: #e5e7eb;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: transform 0.12s ease, box-shadow 0.16s ease, background 0.16s ease;
+    }
+
+    button .icon {
+      font-size: 15px;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 30px rgba(79, 70, 229, 0.45);
+    }
+
+    button.secondary {
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(148, 163, 184, 0.55);
+      color: var(--text-main);
+      box-shadow: none;
+    }
+
+    button.secondary:hover {
+      border-color: var(--accent);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.98);
+    }
+
+    button.outline {
+      background: transparent;
+      border: 1px dashed rgba(148, 163, 184, 0.6);
+      color: var(--text-muted);
+    }
+
+    button.outline:hover {
+      border-style: solid;
+      border-color: var(--accent);
+      color: var(--text-main);
+    }
+
+    .status {
+      font-size: 11px;
+      margin-top: 6px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .status.error {
+      color: var(--danger);
+    }
+
+    .status.success {
+      color: var(--success);
+    }
+
+    .status.info {
+      color: var(--text-muted);
+    }
+
+    .chip-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .chip {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-muted);
+    }
+
+    .chip.primary {
+      border-color: rgba(56, 189, 248, 0.7);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-main);
+    }
+
+    .list {
+      margin-top: 8px;
+      max-height: 260px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .list::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.8);
+    }
+
+    .list::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.6);
+      border-radius: 999px;
+    }
+
+    .list-item {
+      border-radius: 12px;
+      padding: 10px 9px;
+      margin-bottom: 8px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(148, 163, 184, 0.55);
+      position: relative;
+    }
+
+    .list-item::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.28), transparent 65%);
+      opacity: 0.35;
+      pointer-events: none;
+    }
+
+    .list-item-title {
+      font-size: 14px;
+      font-weight: 600;
+      position: relative;
+    }
+
+    .list-item-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      position: relative;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      margin-right: 4px;
+      border: 1px solid rgba(148, 163, 184, 0.65);
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    .badge.status {
+      border-color: rgba(79, 70, 229, 0.8);
+      background: var(--primary-soft);
+    }
+
+    .badge.role {
+      border-color: rgba(56, 189, 248, 0.8);
+      background: var(--accent-soft);
+    }
+
+    .badge.ward {
+      border-color: rgba(22, 163, 74, 0.9);
+      background: rgba(22, 163, 74, 0.26);
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+</head>
+<body>
+  <!-- Animated orbs -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <div class="shell">
+    <div class="glass">
+      <!-- Header -->
+      <header class="app-header">
+        <div class="logo-mark">
+          <span>EP</span>
+        </div>
+        <div class="header-text">
+          <div class="app-title">E-PANCHAYAT</div>
+          <div class="app-subtitle">
+            AI-ready complaint system with camera+GPS and auto routing
+          </div>
+        </div>
+        <div class="status-chip">
+          <span class="status-dot"></span>
+          <span>Phase 1 · Citizen & Admin Portal</span>
+        </div>
+      </header>
+
+      <!-- Tabs -->
+      <div class="tab-row">
+        <div class="tab active" id="tab-citizen" onclick="setTab('citizen')">
+          <span class="icon">👤</span>
+          <span>Citizen Portal</span>
+        </div>
+        <div class="tab" id="tab-admin" onclick="setTab('admin')">
+          <span class="icon">🏛️</span>
+          <span>Officials Portal</span>
+        </div>
+      </div>
+
+      <!-- Layout -->
+      <div class="layout">
+        <!-- Left side: main forms (login/register/complaint) -->
+        <section class="panel" id="panel-citizen">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">Citizen Access</div>
+              <div class="panel-caption">Register, login, and submit complaints</div>
+            </div>
+            <span class="panel-badge">Citizen</span>
+          </div>
+
+          <!-- Citizen views -->
+          <div id="view-home">
+            <p class="panel-caption">
+              Start by registering as a new user or logging in to track and submit complaints.
+            </p>
+            <div class="btn-row">
+              <button onclick="showView('view-register')">
+                <span class="icon">✨</span> New User Register
+              </button>
+              <button class="secondary" onclick="showView('view-login')">
+                <span class="icon">🔑</span> User Login
+              </button>
+            </div>
+          </div>
+
+          <!-- Register view -->
+          <div id="view-register" class="hidden">
+            <div class="field-grid">
+              <div class="field-group">
+                <label for="reg-name">Full Name</label>
+                <input id="reg-name" type="text" placeholder="Enter your name" />
+              </div>
+              <div class="field-group">
+                <label for="reg-email">Email</label>
+                <input id="reg-email" type="email" placeholder="Enter your email" />
+              </div>
+              <div class="field-group">
+                <label for="reg-phone">Phone</label>
+                <input id="reg-phone" type="text" placeholder="Enter phone number" />
+              </div>
+              <div class="field-group">
+                <label for="reg-ward">Ward</label>
+                <input id="reg-ward" type="text" placeholder="Enter ward / area" />
+              </div>
+            </div>
+            <div class="field-group">
+              <label for="reg-password">Password</label>
+              <input id="reg-password" type="password" placeholder="Choose a strong password" />
+            </div>
+            <div class="btn-row">
+              <button id="registerBtn">
+                <span class="icon">📝</span> Register
+              </button>
+              <button class="secondary" onclick="showView('view-login')">
+                Already registered? Login
+              </button>
+              <button class="secondary outline" onclick="showView('view-home')">
+                Back to Citizen Portal
+              </button>
+            </div>
+            <div id="reg-message" class="status info"></div>
+          </div>
+
+          <!-- Login view -->
+          <div id="view-login" class="hidden">
+            <div class="field-group">
+              <label for="login-email">Email</label>
+              <input id="login-email" type="email" />
+            </div>
+            <div class="field-group">
+              <label for="login-password">Password</label>
+              <input id="login-password" type="password" />
+            </div>
+            <div class="btn-row">
+              <button id="loginBtn">
+                <span class="icon">🔓</span> Login
+              </button>
+              <button class="secondary" onclick="showView('view-register')">
+                New user? Register
+              </button>
+              <button class="secondary outline" onclick="showView('view-home')">
+                Back to Citizen Portal
+              </button>
+            </div>
+            <div id="login-message" class="status info"></div>
+          </div>
+
+          <!-- Complaint view -->
+          <div id="view-complaint" class="hidden">
+            <div class="panel-caption">
+              Capture a real photo using your device camera and tag the exact location using GPS.
+            </div>
+            <div class="field-grid">
+              <div class="field-group">
+                <label for="c-title">Title</label>
+                <input id="c-title" type="text" placeholder="Short title of complaint" />
+              </div>
+              <div class="field-group">
+                <label for="c-ward">Ward</label>
+                <input id="c-ward" type="text" placeholder="Ward / Area" />
+              </div>
+              <div class="field-group">
+                <label for="c-category">Category</label>
+                <select id="c-category">
+                  <option value="roads">Roads</option>
+                  <option value="water">Water</option>
+                  <option value="waste">Waste</option>
+                  <option value="streetlight">Street Light</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="c-description">Description</label>
+              <textarea id="c-description" rows="4" placeholder="Describe the issue clearly"></textarea>
+            </div>
+
+            <div class="field-group">
+              <label>Capture Photo (Camera only)</label>
+              <input id="photoInput" type="file" accept="image/*" capture="environment" />
+              <div class="chip-group">
+                <span class="chip primary">Live camera capture</span>
+                <span class="chip">No gallery uploads</span>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label>GPS Location</label>
+              <div class="btn-row">
+                <button id="getLocationBtn">
+                  <span class="icon">📍</span> Get Current Location
+                </button>
+              </div>
+              <div id="locationInfo" class="status info"></div>
+            </div>
+
+            <div class="btn-row">
+              <button id="submitComplaintBtn">
+                <span class="icon">🚀</span> Submit Complaint
+              </button>
+              <button class="secondary" onclick="showView('view-dashboard')">
+                Back to Dashboard
+              </button>
+            </div>
+            <div id="complaint-message" class="status info"></div>
+          </div>
+        </section>
+
+        <!-- Right side: dashboard + admin login -->
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">Citizen Dashboard</div>
+              <div class="panel-caption">Track complaint status and see assigned roles</div>
+            </div>
+            <span class="panel-badge">Status</span>
+          </div>
+
+          <!-- Dashboard -->
+          <div id="view-dashboard" class="hidden">
+            <div class="btn-row">
+              <button onclick="showView('view-complaint')">
+                <span class="icon">➕</span> New Complaint
+              </button>
+              <button class="secondary" onclick="logoutAndHome()">
+                <span class="icon">↩</span> Logout
+              </button>
+            </div>
+            <div id="complaintsList" class="list">
+              <p class="status info">Login to see your complaints.</p>
+            </div>
+          </div>
+
+          <!-- Admin card content -->
+          <div id="view-admin-panel">
+            <div class="panel-header" style="margin-top:16px;">
+              <div>
+                <div class="panel-title">Admins Login</div>
+                <div class="panel-caption">
+                  Admin, GKM, PDO, EO, and CEO access for routing and governance
+                </div>
+              </div>
+              <span class="panel-badge">Officials</span>
+            </div>
+
+            <div class="field-grid">
+              <div class="field-group">
+                <label for="admin-email">Email</label>
+                <input id="admin-email" type="email" />
+              </div>
+              <div class="field-group">
+                <label for="admin-password">Password</label>
+                <input id="admin-password" type="password" />
+              </div>
+              <div class="field-group">
+                <label for="admin-role">Role</label>
+                <select id="admin-role">
+                  <option value="admin">Admin</option>
+                  <option value="gkm">GKM</option>
+                  <option value="pdo">PDO</option>
+                  <option value="eo">EO</option>
+                  <option value="ceo">CEO</option>
+                </select>
+              </div>
+            </div>
+            <div class="btn-row">
+              <button id="adminLoginBtn">
+                <span class="icon">🏛️</span> Admin Login
+              </button>
+              <button class="secondary outline" onclick="setTab('citizen')">
+                Go to Citizen Portal
+              </button>
+            </div>
+            <div id="admin-message" class="status info"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===========================
+       JAVASCRIPT LOGIC
+  ============================ -->
+  <script>
+    // ---- Tab switching (Citizen vs Admin emphasis) ----
+    function setTab(tab) {
+      const tabCitizen = document.getElementById("tab-citizen");
+      const tabAdmin = document.getElementById("tab-admin");
+      if (tab === "citizen") {
+        tabCitizen.classList.add("active");
+        tabAdmin.classList.remove("active");
+        showView("view-home");
+      } else {
+        tabAdmin.classList.add("active");
+        tabCitizen.classList.remove("active");
+        // Keep citizen views hidden, just focus on admin panel visually
+        showView("view-home"); // still keep base view; admin panel is on right section
+      }
+    }
+
+    // ---- Citizen view switching ----
+    function showView(id) {
+      const ids = ["view-home", "view-register", "view-login", "view-complaint", "view-dashboard"];
+      ids.forEach(v => {
+        const el = document.getElementById(v);
+        if (el) el.classList.add("hidden");
+      });
+      const target = document.getElementById(id);
+      if (target) target.classList.remove("hidden");
+    }
+
+    function logoutAndHome() {
+      auth.signOut().finally(() => {
+        showView("view-home");
+        document.getElementById("complaintsList").innerHTML =
+          "<p class='status info'>Login to see your complaints.</p>";
+      });
+    }
+
+    // ---- Firebase config ----
+    const firebaseConfig = {
+      apiKey: "AIzaSyDWu5Us6Qcq7pZgNIoTKZDW-rI1iHNqlO0",
+  authDomain: "new-e-panchayat.firebaseapp.com",
+  projectId: "new-e-panchayat",
+  storageBucket: "new-e-panchayat.firebasestorage.app",
+  messagingSenderId: "895672032452",
+  appId: "1:895672032452:web:cd2651a3e9ca4b9719bd91",
+  measurementId: "G-FWE44M5C82"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // ---- Register citizen ----
+    const registerBtn = document.getElementById("registerBtn");
+    if (registerBtn) {
+      registerBtn.addEventListener("click", async () => {
+        const name = document.getElementById("reg-name").value.trim();
+        const email = document.getElementById("reg-email").value.trim();
+        const phone = document.getElementById("reg-phone").value.trim();
+        const ward = document.getElementById("reg-ward").value.trim();
+        const password = document.getElementById("reg-password").value.trim();
+        const messageEl = document.getElementById("reg-message");
+
+        messageEl.textContent = "";
+        messageEl.className = "status info";
+
+        if (!name || !email || !phone || !ward || !password) {
+          messageEl.textContent = "Please fill all fields.";
+          messageEl.classList.add("error");
+          return;
+        }
 
         try {
-          let app = firebase.app();
-          let features = [
-            'auth', 
-            'database', 
-            'firestore',
-            'functions',
-            'messaging', 
-            'storage', 
-            'analytics', 
-            'remoteConfig',
-            'performance',
-          ].filter(feature => typeof app[feature] === 'function');
-          loadEl.textContent = `Firebase SDK loaded with ${features.join(', ')}`;
-        } catch (e) {
-          console.error(e);
-          loadEl.textContent = 'Error loading the Firebase SDK, check the console.';
+          messageEl.textContent = "Creating account...";
+          const cred = await auth.createUserWithEmailAndPassword(email, password);
+          const uid = cred.user.uid;
+
+          await db.collection("users").doc(uid).set({
+            name,
+            email,
+            phone,
+            ward,
+            role: "citizen",
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+
+          messageEl.textContent = "Registration successful!";
+          messageEl.classList.add("success");
+          setTimeout(() => {
+            showView("view-login");
+          }, 1000);
+        } catch (err) {
+          console.error(err);
+          messageEl.textContent = err.message;
+          messageEl.classList.add("error");
         }
       });
-    </script>
-  </body>
+    }
+
+    // ---- Citizen login ----
+    const loginBtn = document.getElementById("loginBtn");
+    if (loginBtn) {
+      loginBtn.addEventListener("click", async () => {
+        const email = document.getElementById("login-email").value.trim();
+        const password = document.getElementById("login-password").value.trim();
+        const messageEl = document.getElementById("login-message");
+
+        messageEl.textContent = "";
+        messageEl.className = "status info";
+
+        if (!email || !password) {
+          messageEl.textContent = "Enter email and password.";
+          messageEl.classList.add("error");
+          return;
+        }
+
+        try {
+          messageEl.textContent = "Logging in...";
+          await auth.signInWithEmailAndPassword(email, password);
+          messageEl.textContent = "Login successful!";
+          messageEl.classList.add("success");
+          setTimeout(() => {
+            showView("view-dashboard");
+            loadDashboard();
+          }, 800);
+        } catch (err) {
+          console.error(err);
+          messageEl.textContent = err.message;
+          messageEl.classList.add("error");
+        }
+      });
+    }
+
+    // ---- Admin login ----
+    const adminLoginBtn = document.getElementById("adminLoginBtn");
+    if (adminLoginBtn) {
+      adminLoginBtn.addEventListener("click", async () => {
+        const email = document.getElementById("admin-email").value.trim();
+        const password = document.getElementById("admin-password").value.trim();
+        const role = document.getElementById("admin-role").value;
+        const messageEl = document.getElementById("admin-message");
+
+        messageEl.textContent = "";
+        messageEl.className = "status info";
+
+        if (!email || !password) {
+          messageEl.textContent = "Enter email and password.";
+          messageEl.classList.add("error");
+          return;
+        }
+
+        try {
+          messageEl.textContent = "Logging in...";
+          const cred = await auth.signInWithEmailAndPassword(email, password);
+          const uid = cred.user.uid;
+
+          const doc = await db.collection("users").doc(uid).get();
+          if (!doc.exists) {
+            throw new Error("User record not found.");
+          }
+
+          const data = doc.data();
+          if (data.role !== role) {
+            throw new Error(`Role mismatch. Your role is ${data.role}, not ${role}.`);
+          }
+
+          messageEl.textContent = `Admin login (${role.toUpperCase()}) successful!`;
+          messageEl.classList.add("success");
+          // Later: redirect to dedicated dashboards for each role.
+        } catch (err) {
+          console.error(err);
+          messageEl.textContent = err.message;
+          messageEl.classList.add("error");
+        }
+      });
+    }
+
+    // ---- Complaint: GPS + camera ----
+    let currentLat = null;
+    let currentLng = null;
+
+    const getLocationBtn = document.getElementById("getLocationBtn");
+    const locationInfo = document.getElementById("locationInfo");
+    const submitComplaintBtn = document.getElementById("submitComplaintBtn");
+    const complaintMessageEl = document.getElementById("complaint-message");
+
+    if (getLocationBtn) {
+      getLocationBtn.addEventListener("click", () => {
+        if (!navigator.geolocation) {
+          locationInfo.textContent = "Geolocation not supported on this device.";
+          locationInfo.classList.add("error");
+          return;
+        }
+        locationInfo.textContent = "Capturing location...";
+        locationInfo.classList.remove("error");
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            currentLat = pos.coords.latitude;
+            currentLng = pos.coords.longitude;
+            locationInfo.textContent = `Location captured: ${currentLat.toFixed(5)}, ${currentLng.toFixed(5)}`;
+          },
+          (err) => {
+            console.error(err);
+            locationInfo.textContent = "Unable to capture location.";
+            locationInfo.classList.add("error");
+          }
+        );
+      });
+    }
+
+    if (submitComplaintBtn) {
+      submitComplaintBtn.addEventListener("click", async () => {
+        const title = document.getElementById("c-title").value.trim();
+        const description = document.getElementById("c-description").value.trim();
+        const category = document.getElementById("c-category").value;
+        const ward = document.getElementById("c-ward").value.trim();
+        const photoInput = document.getElementById("photoInput");
+
+        complaintMessageEl.textContent = "";
+        complaintMessageEl.className = "status info";
+
+        if (!title || !description || !ward) {
+          complaintMessageEl.textContent = "Please fill all fields.";
+          complaintMessageEl.classList.add("error");
+          return;
+        }
+        if (!photoInput.files.length) {
+          complaintMessageEl.textContent = "Please capture photo from camera.";
+          complaintMessageEl.classList.add("error");
+          return;
+        }
+        if (currentLat === null || currentLng === null) {
+          complaintMessageEl.textContent = "Please capture GPS location.";
+          complaintMessageEl.classList.add("error");
+          return;
+        }
+
+        const user = auth.currentUser;
+        if (!user) {
+          complaintMessageEl.textContent = "You must be logged in to submit complaints.";
+          complaintMessageEl.classList.add("error");
+          return;
+        }
+
+        try {
+          complaintMessageEl.textContent = "Uploading photo...";
+          const file = photoInput.files[0];
+          const formData = new FormData();
+          formData.append("image", file);
+
+          // Replace with your backend API (Express + Cloudinary)
+          const uploadRes = await fetch("https://YOUR_API_URL/upload-image", {
+            method: "POST",
+            body: formData
+          });
+          const uploadData = await uploadRes.json();
+          if (!uploadRes.ok) {
+            throw new Error(uploadData.message || "Photo upload failed");
+          }
+
+          const photoUrl = uploadData.url;
+          complaintMessageEl.textContent = "Saving complaint...";
+
+          await db.collection("complaints").add({
+            userId: user.uid,
+            title,
+            description,
+            category,
+            ward,
+            status: "submitted",
+            assignedToRole: "gkm", // Phase 2: proper auto-routing
+            photoUrl,
+            location: {
+              lat: currentLat,
+              lng: currentLng
+            },
+            submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+
+          complaintMessageEl.textContent = "Complaint submitted successfully.";
+          complaintMessageEl.classList.add("success");
+          setTimeout(() => {
+            loadDashboard();
+            showView("view-dashboard");
+          }, 1000);
+        } catch (err) {
+          console.error(err);
+          complaintMessageEl.textContent = err.message;
+          complaintMessageEl.classList.add("error");
+        }
+      });
+    }
+
+    // ---- Dashboard: load complaints ----
+    async function loadDashboard() {
+      const complaintsList = document.getElementById("complaintsList");
+      if (!complaintsList) return;
+
+      const user = auth.currentUser;
+      if (!user) {
+        complaintsList.innerHTML = "<p class='status info'>Login to see your complaints.</p>";
+        return;
+      }
+
+      complaintsList.innerHTML = "<p class='status info'>Loading complaints...</p>";
+
+      const snapshot = await db
+        .collection("complaints")
+        .where("userId", "==", user.uid)
+        .orderBy("submittedAt", "desc")
+        .get();
+
+      if (snapshot.empty) {
+        complaintsList.innerHTML = "<p class='status info'>No complaints yet.</p>";
+        return;
+      }
+
+      complaintsList.innerHTML = "";
+      snapshot.forEach((doc) => {
+        const c = doc.data();
+        const div = document.createElement("div");
+        div.className = "list-item";
+
+        const submittedAt =
+          c.submittedAt && c.submittedAt.toDate
+            ? c.submittedAt.toDate().toLocaleString()
+            : "N/A";
+
+        div.innerHTML = `
+          <div class="list-item-title">${c.title}</div>
+          <div class="list-item-meta">
+            <span class="badge status">Status: ${c.status}</span>
+            <span class="badge role">Role: ${c.assignedToRole}</span>
+            <span class="badge ward">Ward: ${c.ward}</span>
+          </div>
+          <div class="list-item-meta">
+            Submitted: ${submittedAt}
+          </div>
+        `;
+        complaintsList.appendChild(div);
+      });
+    }
+
+    // Initialize view
+    showView("view-home");
+  </script>
+</body>
 </html>
