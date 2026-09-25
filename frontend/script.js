@@ -4300,7 +4300,7 @@ const LOCAL_BACKEND_URL = "http://localhost:5000";
  * replace the URL below with your real Render URL.
  */
 const DEPLOYED_BACKEND_URL =
-    "https://YOUR-RENDER-BACKEND.onrender.com";
+    "https://e-panchayat.onrender.com";
 
 
 const BACKEND_URL =
