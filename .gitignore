@@ -65,5 +65,16 @@ node_modules/
 # dotenv environment variables file
 .env
 
+# Runtime uploaded complaint images
+uploads/
+
+# Local test image
+/test.jpg
+
+# Local Postman files
+.postman/
+postman/
+
+
 # dataconnect generated files
 .dataconnect

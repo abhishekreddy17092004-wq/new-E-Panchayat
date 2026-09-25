@@ -1,1100 +1,2630 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <title>E-Panchayat Smart Complaint System</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Advanced Creative CSS -->
-  <style>
-    :root {
-      --bg-gradient: radial-gradient(circle at top left, #0f172a 0, #020617 40%, #000000 90%);
-      --glass-bg: rgba(15, 23, 42, 0.82);
-      --accent: #38bdf8;
-      --accent-soft: rgba(56, 189, 248, 0.25);
-      --primary: #4f46e5;
-      --primary-soft: rgba(79, 70, 229, 0.32);
-      --danger: #f97373;
-      --success: #22c55e;
-      --text-main: #e5e7eb;
-      --text-muted: #9ca3af;
-      --border-soft: rgba(148, 163, 184, 0.35);
-      --shadow-strong: 0 24px 80px rgba(15, 23, 42, 0.85);
-      --round-xl: 18px;
-    }
+    <meta charset="UTF-8">
 
-    * {
-      box-sizing: border-box;
-    }
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    body {
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        sans-serif;
-      background: var(--bg-gradient);
-      color: var(--text-main);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+    <meta
+        name="description"
+        content="E-Gram Panchayat - Digital Panchayat Services and Smart Complaint Management System"
+    >
 
-    /* Animated background accents */
-    .orb {
-      position: fixed;
-      border-radius: 999px;
-      filter: blur(60px);
-      opacity: 0.45;
-      pointer-events: none;
-      z-index: -1;
-    }
-    .orb.orb-1 {
-      width: 280px;
-      height: 280px;
-      background: rgba(56, 189, 248, 0.45);
-      top: 6%;
-      left: 6%;
-      animation: float1 16s infinite alternate ease-in-out;
-    }
-    .orb.orb-2 {
-      width: 260px;
-      height: 260px;
-      background: rgba(79, 70, 229, 0.45);
-      bottom: 4%;
-      right: 8%;
-      animation: float2 18s infinite alternate ease-in-out;
-    }
+    <meta
+        name="theme-color"
+        content="#00843d"
+    >
 
-    @keyframes float1 {
-      from { transform: translate3d(0,0,0); }
-      to { transform: translate3d(40px, 20px, 0); }
-    }
-    @keyframes float2 {
-      from { transform: translate3d(0,0,0); }
-      to { transform: translate3d(-20px, -40px, 0); }
-    }
+    <title>
+        E-Gram Panchayat | Digital Panchayat Services
+    </title>
 
-    .shell {
-      width: 100%;
-      max-width: 1040px;
-      padding: 20px;
-    }
+    <link
+        rel="stylesheet"
+        href="./style.css"
+    >
 
-    .glass {
-      background: var(--glass-bg);
-      border-radius: 26px;
-      border: 1px solid rgba(148, 163, 184, 0.5);
-      box-shadow: var(--shadow-strong);
-      backdrop-filter: blur(20px) saturate(150%);
-      padding: 22px 24px;
-      position: relative;
-      overflow: hidden;
-    }
+    <!-- Step 1: Interactive complaint-location map -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        crossorigin=""
+    >
+    <style>
+       #complaintMap {
+    width: 100%;
+    height: 300px;
+    min-height: 300px;
+    display: block;
+    position: relative;
+    margin-top: 12px;
+    border-radius: 10px;
+    overflow: hidden;
+    z-index: 1;
+}
+    </style>
 
-    .glass::before {
-      content: "";
-      position: absolute;
-      inset: -80px;
-      background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.22), transparent 60%);
-      opacity: 0.8;
-      pointer-events: none;
-    }
-
-    header.app-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 18px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .logo-mark {
-      width: 42px;
-      height: 42px;
-      border-radius: 14px;
-      background: conic-gradient(from 230deg, #4f46e5, #22c55e, #38bdf8, #4f46e5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.9);
-    }
-    .logo-mark span {
-      font-weight: 800;
-      font-size: 18px;
-      color: #0b1120;
-    }
-
-    .header-text {
-      flex: 1;
-    }
-
-    .app-title {
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-    }
-
-    .app-subtitle {
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-
-    .status-chip {
-      border-radius: 999px;
-      padding: 6px 12px;
-      font-size: 11px;
-      border: 1px solid var(--border-soft);
-      background: rgba(15, 23, 42, 0.9);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      color: var(--text-muted);
-    }
-    .status-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: #22c55e;
-      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.35);
-    }
-
-    /* Tab navigation for Citizen / Admin */
-    .tab-row {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .tab {
-      flex: 1;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.32);
-      background: rgba(15, 23, 42, 0.9);
-      padding: 8px 12px;
-      font-size: 13px;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      cursor: pointer;
-      transition: all 0.16s ease;
-    }
-
-    .tab span.icon {
-      font-size: 14px;
-    }
-
-    .tab.active {
-      background: linear-gradient(135deg, rgba(79, 70, 229, 0.28), rgba(56, 189, 248, 0.28));
-      border-color: rgba(56, 189, 248, 0.65);
-      color: var(--text-main);
-      box-shadow: 0 8px 18px rgba(56, 189, 248, 0.35);
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: minmax(0, 1.45fr) minmax(0, 1.1fr);
-      gap: 16px;
-      position: relative;
-      z-index: 1;
-    }
-
-    @media (max-width: 840px) {
-      .layout {
-        grid-template-columns: minmax(0, 1fr);
-      }
-    }
-
-    .panel {
-      border-radius: var(--round-xl);
-      border: 1px solid rgba(148, 163, 184, 0.45);
-      background: rgba(15, 23, 42, 0.85);
-      padding: 16px 14px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .panel::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.24), transparent 60%);
-      opacity: 0.35;
-      pointer-events: none;
-    }
-
-    .panel-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 8px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .panel-title {
-      font-size: 15px;
-      font-weight: 600;
-    }
-
-    .panel-caption {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    .panel-badge {
-      font-size: 11px;
-      border-radius: 999px;
-      padding: 4px 10px;
-      border: 1px solid rgba(56, 189, 248, 0.6);
-      background: rgba(15, 23, 42, 0.9);
-      color: var(--text-main);
-    }
-
-    .field-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 10px 10px;
-    }
-
-    .field-group {
-      margin-bottom: 8px;
-      position: relative;
-      z-index: 1;
-    }
-
-    label {
-      font-size: 12px;
-      font-weight: 500;
-      display: block;
-      margin-bottom: 4px;
-    }
-
-    input, select, textarea {
-      width: 100%;
-      padding: 8px 10px;
-      border-radius: 10px;
-      border: 1px solid rgba(148, 163, 184, 0.45);
-      background: #020617;
-      color: var(--text-main);
-      font-size: 13px;
-      outline: none;
-      transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
-    }
-
-    input:focus,
-    select:focus,
-    textarea:focus {
-      border-color: var(--accent);
-      background: #0b1120;
-      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.7);
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 70px;
-    }
-
-    .btn-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 10px;
-      position: relative;
-      z-index: 1;
-    }
-
-    button {
-      border-radius: 999px;
-      border: none;
-      padding: 8px 16px;
-      background: linear-gradient(135deg, var(--primary), #6366f1);
-      color: #e5e7eb;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      white-space: nowrap;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: transform 0.12s ease, box-shadow 0.16s ease, background 0.16s ease;
-    }
-
-    button .icon {
-      font-size: 15px;
-    }
-
-    button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 16px 30px rgba(79, 70, 229, 0.45);
-    }
-
-    button.secondary {
-      background: rgba(15, 23, 42, 0.95);
-      border: 1px solid rgba(148, 163, 184, 0.55);
-      color: var(--text-main);
-      box-shadow: none;
-    }
-
-    button.secondary:hover {
-      border-color: var(--accent);
-      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.98);
-    }
-
-    button.outline {
-      background: transparent;
-      border: 1px dashed rgba(148, 163, 184, 0.6);
-      color: var(--text-muted);
-    }
-
-    button.outline:hover {
-      border-style: solid;
-      border-color: var(--accent);
-      color: var(--text-main);
-    }
-
-    .status {
-      font-size: 11px;
-      margin-top: 6px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .status.error {
-      color: var(--danger);
-    }
-
-    .status.success {
-      color: var(--success);
-    }
-
-    .status.info {
-      color: var(--text-muted);
-    }
-
-    .chip-group {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin-top: 6px;
-    }
-
-    .chip {
-      font-size: 10px;
-      padding: 3px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.45);
-      background: rgba(15, 23, 42, 0.9);
-      color: var(--text-muted);
-    }
-
-    .chip.primary {
-      border-color: rgba(56, 189, 248, 0.7);
-      background: rgba(15, 23, 42, 0.9);
-      color: var(--text-main);
-    }
-
-    .list {
-      margin-top: 8px;
-      max-height: 260px;
-      overflow-y: auto;
-      padding-right: 4px;
-    }
-
-    .list::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .list::-webkit-scrollbar-track {
-      background: rgba(15, 23, 42, 0.8);
-    }
-
-    .list::-webkit-scrollbar-thumb {
-      background: rgba(148, 163, 184, 0.6);
-      border-radius: 999px;
-    }
-
-    .list-item {
-      border-radius: 12px;
-      padding: 10px 9px;
-      margin-bottom: 8px;
-      background: rgba(15, 23, 42, 0.96);
-      border: 1px solid rgba(148, 163, 184, 0.55);
-      position: relative;
-    }
-
-    .list-item::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      background: linear-gradient(135deg, rgba(79, 70, 229, 0.28), transparent 65%);
-      opacity: 0.35;
-      pointer-events: none;
-    }
-
-    .list-item-title {
-      font-size: 14px;
-      font-weight: 600;
-      position: relative;
-    }
-
-    .list-item-meta {
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-top: 4px;
-      position: relative;
-    }
-
-    .badge {
-      display: inline-block;
-      font-size: 11px;
-      padding: 2px 8px;
-      border-radius: 999px;
-      margin-right: 4px;
-      border: 1px solid rgba(148, 163, 184, 0.65);
-      background: rgba(15, 23, 42, 0.95);
-    }
-
-    .badge.status {
-      border-color: rgba(79, 70, 229, 0.8);
-      background: var(--primary-soft);
-    }
-
-    .badge.role {
-      border-color: rgba(56, 189, 248, 0.8);
-      background: var(--accent-soft);
-    }
-
-    .badge.ward {
-      border-color: rgba(22, 163, 74, 0.9);
-      background: rgba(22, 163, 74, 0.26);
-    }
-
-    .hidden {
-      display: none;
-    }
-  </style>
-
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 </head>
+
+
 <body>
-  <!-- Animated orbs -->
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
 
-  <div class="shell">
-    <div class="glass">
-      <!-- Header -->
-      <header class="app-header">
-        <div class="logo-mark">
-          <span>EP</span>
+
+<!-- =========================================================
+     VIEW: HOME
+========================================================= -->
+
+<div id="view-home">
+
+
+    <!-- =====================================================
+         TOP GOVERNMENT BAR
+    ====================================================== -->
+
+   <div class="top-bar">
+
+    <div class="container top-bar-content">
+
+        <div>
+            <span data-i18n="governmentOfIndia">
+                Government of India
+            </span>
+            |
+            <span data-i18n="digitalPanchayatInitiative">
+                Digital Panchayat Initiative
+            </span>
         </div>
-        <div class="header-text">
-          <div class="app-title">E-PANCHAYAT</div>
-          <div class="app-subtitle">
-            AI-ready complaint system with camera+GPS and auto routing
-          </div>
-        </div>
-        <div class="status-chip">
-          <span class="status-dot"></span>
-          <span>Phase 1 · Citizen & Admin Portal</span>
-        </div>
-      </header>
 
-      <!-- Tabs -->
-      <div class="tab-row">
-        <div class="tab active" id="tab-citizen" onclick="setTab('citizen')">
-          <span class="icon">👤</span>
-          <span>Citizen Portal</span>
-        </div>
-        <div class="tab" id="tab-admin" onclick="setTab('admin')">
-          <span class="icon">🏛️</span>
-          <span>Officials Portal</span>
-        </div>
-      </div>
+        <div class="top-links">
 
-      <!-- Layout -->
-      <div class="layout">
-        <!-- Left side: main forms (login/register/complaint) -->
-        <section class="panel" id="panel-citizen">
-          <div class="panel-header">
-            <div>
-              <div class="panel-title">Citizen Access</div>
-              <div class="panel-caption">Register, login, and submit complaints</div>
-            </div>
-            <span class="panel-badge">Citizen</span>
-          </div>
+            <span>
+                <span data-i18n="helpline">
+                    Helpline
+                </span>:
+                1800-XXX-XXXX
+            </span>
 
-          <!-- Citizen views -->
-          <div id="view-home">
-            <p class="panel-caption">
-              Start by registering as a new user or logging in to track and submit complaints.
-            </p>
-            <div class="btn-row">
-              <button onclick="showView('view-register')">
-                <span class="icon">✨</span> New User Register
-              </button>
-              <button class="secondary" onclick="showView('view-login')">
-                <span class="icon">🔑</span> User Login
-              </button>
-            </div>
-          </div>
+            <!-- GLOBAL LANGUAGE SELECTOR -->
+            <label
+                class="language-selector"
+                for="languageSelect"
+            >
+                🌐
 
-          <!-- Register view -->
-          <div id="view-register" class="hidden">
-            <div class="field-grid">
-              <div class="field-group">
-                <label for="reg-name">Full Name</label>
-                <input id="reg-name" type="text" placeholder="Enter your name" />
-              </div>
-              <div class="field-group">
-                <label for="reg-email">Email</label>
-                <input id="reg-email" type="email" placeholder="Enter your email" />
-              </div>
-              <div class="field-group">
-                <label for="reg-phone">Phone</label>
-                <input id="reg-phone" type="text" placeholder="Enter phone number" />
-              </div>
-              <div class="field-group">
-                <label for="reg-ward">Ward</label>
-                <input id="reg-ward" type="text" placeholder="Enter ward / area" />
-              </div>
-            </div>
-            <div class="field-group">
-              <label for="reg-password">Password</label>
-              <input id="reg-password" type="password" placeholder="Choose a strong password" />
-            </div>
-            <div class="btn-row">
-              <button id="registerBtn">
-                <span class="icon">📝</span> Register
-              </button>
-              <button class="secondary" onclick="showView('view-login')">
-                Already registered? Login
-              </button>
-              <button class="secondary outline" onclick="showView('view-home')">
-                Back to Citizen Portal
-              </button>
-            </div>
-            <div id="reg-message" class="status info"></div>
-          </div>
+                <span
+                    class="sr-only"
+                    data-i18n="language"
+                >
+                    Language
+                </span>
 
-          <!-- Login view -->
-          <div id="view-login" class="hidden">
-            <div class="field-group">
-              <label for="login-email">Email</label>
-              <input id="login-email" type="email" />
-            </div>
-            <div class="field-group">
-              <label for="login-password">Password</label>
-              <input id="login-password" type="password" />
-            </div>
-            <div class="btn-row">
-              <button id="loginBtn">
-                <span class="icon">🔓</span> Login
-              </button>
-              <button class="secondary" onclick="showView('view-register')">
-                New user? Register
-              </button>
-              <button class="secondary outline" onclick="showView('view-home')">
-                Back to Citizen Portal
-              </button>
-            </div>
-            <div id="login-message" class="status info"></div>
-          </div>
-
-          <!-- Complaint view -->
-          <div id="view-complaint" class="hidden">
-            <div class="panel-caption">
-              Capture a real photo using your device camera and tag the exact location using GPS.
-            </div>
-            <div class="field-grid">
-              <div class="field-group">
-                <label for="c-title">Title</label>
-                <input id="c-title" type="text" placeholder="Short title of complaint" />
-              </div>
-              <div class="field-group">
-                <label for="c-ward">Ward</label>
-                <input id="c-ward" type="text" placeholder="Ward / Area" />
-              </div>
-              <div class="field-group">
-                <label for="c-category">Category</label>
-                <select id="c-category">
-                  <option value="roads">Roads</option>
-                  <option value="water">Water</option>
-                  <option value="waste">Waste</option>
-                  <option value="streetlight">Street Light</option>
-                  <option value="other">Other</option>
+                <select
+                    id="languageSelect"
+                    aria-label="Select language"
+                >
+                    <option value="en">English</option>
+                    <option value="hi">हिन्दी</option>
+                    <option value="kn">ಕನ್ನಡ</option>
                 </select>
-              </div>
-            </div>
 
-            <div class="field-group">
-              <label for="c-description">Description</label>
-              <textarea id="c-description" rows="4" placeholder="Describe the issue clearly"></textarea>
-            </div>
+            </label>
 
-            <div class="field-group">
-              <label>Capture Photo (Camera only)</label>
-              <input id="photoInput" type="file" accept="image/*" capture="environment" />
-              <div class="chip-group">
-                <span class="chip primary">Live camera capture</span>
-                <span class="chip">No gallery uploads</span>
-              </div>
-            </div>
+        </div>
 
-            <div class="field-group">
-              <label>GPS Location</label>
-              <div class="btn-row">
-                <button id="getLocationBtn">
-                  <span class="icon">📍</span> Get Current Location
-                </button>
-              </div>
-              <div id="locationInfo" class="status info"></div>
-            </div>
-
-            <div class="btn-row">
-              <button id="submitComplaintBtn">
-                <span class="icon">🚀</span> Submit Complaint
-              </button>
-              <button class="secondary" onclick="showView('view-dashboard')">
-                Back to Dashboard
-              </button>
-            </div>
-            <div id="complaint-message" class="status info"></div>
-          </div>
-        </section>
-
-        <!-- Right side: dashboard + admin login -->
-        <section class="panel">
-          <div class="panel-header">
-            <div>
-              <div class="panel-title">Citizen Dashboard</div>
-              <div class="panel-caption">Track complaint status and see assigned roles</div>
-            </div>
-            <span class="panel-badge">Status</span>
-          </div>
-
-          <!-- Dashboard -->
-          <div id="view-dashboard" class="hidden">
-            <div class="btn-row">
-              <button onclick="showView('view-complaint')">
-                <span class="icon">➕</span> New Complaint
-              </button>
-              <button class="secondary" onclick="logoutAndHome()">
-                <span class="icon">↩</span> Logout
-              </button>
-            </div>
-            <div id="complaintsList" class="list">
-              <p class="status info">Login to see your complaints.</p>
-            </div>
-          </div>
-
-          <!-- Admin card content -->
-          <div id="view-admin-panel">
-            <div class="panel-header" style="margin-top:16px;">
-              <div>
-                <div class="panel-title">Admins Login</div>
-                <div class="panel-caption">
-                  Admin, GKM, PDO, EO, and CEO access for routing and governance
-                </div>
-              </div>
-              <span class="panel-badge">Officials</span>
-            </div>
-
-            <div class="field-grid">
-              <div class="field-group">
-                <label for="admin-email">Email</label>
-                <input id="admin-email" type="email" />
-              </div>
-              <div class="field-group">
-                <label for="admin-password">Password</label>
-                <input id="admin-password" type="password" />
-              </div>
-              <div class="field-group">
-                <label for="admin-role">Role</label>
-                <select id="admin-role">
-                  <option value="admin">Admin</option>
-                  <option value="gkm">GKM</option>
-                  <option value="pdo">PDO</option>
-                  <option value="eo">EO</option>
-                  <option value="ceo">CEO</option>
-                </select>
-              </div>
-            </div>
-            <div class="btn-row">
-              <button id="adminLoginBtn">
-                <span class="icon">🏛️</span> Admin Login
-              </button>
-              <button class="secondary outline" onclick="setTab('citizen')">
-                Go to Citizen Portal
-              </button>
-            </div>
-            <div id="admin-message" class="status info"></div>
-          </div>
-        </section>
-      </div>
     </div>
-  </div>
 
-  <!-- ===========================
-       JAVASCRIPT LOGIC
-  ============================ -->
-  <script>
-    // ---- Tab switching (Citizen vs Admin emphasis) ----
-    function setTab(tab) {
-      const tabCitizen = document.getElementById("tab-citizen");
-      const tabAdmin = document.getElementById("tab-admin");
-      if (tab === "citizen") {
-        tabCitizen.classList.add("active");
-        tabAdmin.classList.remove("active");
-        showView("view-home");
-      } else {
-        tabAdmin.classList.add("active");
-        tabCitizen.classList.remove("active");
-        // Keep citizen views hidden, just focus on admin panel visually
-        showView("view-home"); // still keep base view; admin panel is on right section
-      }
-    }
+</div>
 
-    // ---- Citizen view switching ----
-    function showView(id) {
-      const ids = ["view-home", "view-register", "view-login", "view-complaint", "view-dashboard"];
-      ids.forEach(v => {
-        const el = document.getElementById(v);
-        if (el) el.classList.add("hidden");
-      });
-      const target = document.getElementById(id);
-      if (target) target.classList.remove("hidden");
-    }
 
-    function logoutAndHome() {
-      auth.signOut().finally(() => {
-        showView("view-home");
-        document.getElementById("complaintsList").innerHTML =
-          "<p class='status info'>Login to see your complaints.</p>";
-      });
-    }
 
-    // ---- Firebase config ----
-    const firebaseConfig = {
-      apiKey: "AIzaSyDWu5Us6Qcq7pZgNIoTKZDW-rI1iHNqlO0",
-  authDomain: "new-e-panchayat.firebaseapp.com",
-  projectId: "new-e-panchayat",
-  storageBucket: "new-e-panchayat.firebasestorage.app",
-  messagingSenderId: "895672032452",
-  appId: "1:895672032452:web:cd2651a3e9ca4b9719bd91",
-  measurementId: "G-FWE44M5C82"
-    };
+    <!-- =====================================================
+         NAVIGATION
+    ====================================================== -->
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+    <header class="main-header">
 
-    // ---- Register citizen ----
-    const registerBtn = document.getElementById("registerBtn");
-    if (registerBtn) {
-      registerBtn.addEventListener("click", async () => {
-        const name = document.getElementById("reg-name").value.trim();
-        const email = document.getElementById("reg-email").value.trim();
-        const phone = document.getElementById("reg-phone").value.trim();
-        const ward = document.getElementById("reg-ward").value.trim();
-        const password = document.getElementById("reg-password").value.trim();
-        const messageEl = document.getElementById("reg-message");
+        <div class="container nav-container">
 
-        messageEl.textContent = "";
-        messageEl.className = "status info";
 
-        if (!name || !email || !phone || !ward || !password) {
-          messageEl.textContent = "Please fill all fields.";
-          messageEl.classList.add("error");
-          return;
-        }
+            <a
+                href="#"
+                class="brand"
+                onclick="showView('view-home'); return false;"
+            >
 
-        try {
-          messageEl.textContent = "Creating account...";
-          const cred = await auth.createUserWithEmailAndPassword(email, password);
-          const uid = cred.user.uid;
+                <div class="brand-logo">
+                    🏛️
+                </div>
 
-          await db.collection("users").doc(uid).set({
-            name,
-            email,
-            phone,
-            ward,
-            role: "citizen",
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
+                <div class="brand-text">
 
-          messageEl.textContent = "Registration successful!";
-          messageEl.classList.add("success");
-          setTimeout(() => {
-            showView("view-login");
-          }, 1000);
-        } catch (err) {
-          console.error(err);
-          messageEl.textContent = err.message;
-          messageEl.classList.add("error");
-        }
-      });
-    }
+                    <div class="brand-title">
+                        <span data-i18n="brandTitle">
+                            E-Gram Panchayat
+                        </span>
+                    </div>
 
-    // ---- Citizen login ----
-    const loginBtn = document.getElementById("loginBtn");
-    if (loginBtn) {
-      loginBtn.addEventListener("click", async () => {
-        const email = document.getElementById("login-email").value.trim();
-        const password = document.getElementById("login-password").value.trim();
-        const messageEl = document.getElementById("login-message");
+                    <div class="brand-subtitle">
+                        <span data-i18n="brandSubtitle">
+                            Digital Panchayat Services
+                        </span>
+                    </div>
 
-        messageEl.textContent = "";
-        messageEl.className = "status info";
+                </div>
 
-        if (!email || !password) {
-          messageEl.textContent = "Enter email and password.";
-          messageEl.classList.add("error");
-          return;
-        }
+            </a>
 
-        try {
-          messageEl.textContent = "Logging in...";
-          await auth.signInWithEmailAndPassword(email, password);
-          messageEl.textContent = "Login successful!";
-          messageEl.classList.add("success");
-          setTimeout(() => {
-            showView("view-dashboard");
-            loadDashboard();
-          }, 800);
-        } catch (err) {
-          console.error(err);
-          messageEl.textContent = err.message;
-          messageEl.classList.add("error");
-        }
-      });
-    }
 
-    // ---- Admin login ----
-    const adminLoginBtn = document.getElementById("adminLoginBtn");
-    if (adminLoginBtn) {
-      adminLoginBtn.addEventListener("click", async () => {
-        const email = document.getElementById("admin-email").value.trim();
-        const password = document.getElementById("admin-password").value.trim();
-        const role = document.getElementById("admin-role").value;
-        const messageEl = document.getElementById("admin-message");
+            <button
+                type="button"
+                class="mobile-menu-btn"
+                id="mobileMenuBtn"
+            >
+                ☰
+            </button>
 
-        messageEl.textContent = "";
-        messageEl.className = "status info";
+<nav
+    class="main-nav"
+    id="mainNav"
+>
 
-        if (!email || !password) {
-          messageEl.textContent = "Enter email and password.";
-          messageEl.classList.add("error");
-          return;
-        }
+    <a
+        href="#"
+        class="nav-link active"
+        data-i18n="home"
+        onclick="showView('view-home'); return false;"
+    >
+        Home
+    </a>
 
-        try {
-          messageEl.textContent = "Logging in...";
-          const cred = await auth.signInWithEmailAndPassword(email, password);
-          const uid = cred.user.uid;
+    <a
+        href="#about"
+        class="nav-link"
+        data-i18n="about"
+    >
+        About
+    </a>
 
-          const doc = await db.collection("users").doc(uid).get();
-          if (!doc.exists) {
-            throw new Error("User record not found.");
-          }
+    <a
+        href="#services"
+        class="nav-link"
+        data-i18n="services"
+    >
+        Services
+    </a>
 
-          const data = doc.data();
-          if (data.role !== role) {
-            throw new Error(`Role mismatch. Your role is ${data.role}, not ${role}.`);
-          }
+    <a
+        href="#complaints"
+        class="nav-link"
+        data-i18n="complaints"
+    >
+        Complaints
+    </a>
 
-          messageEl.textContent = `Admin login (${role.toUpperCase()}) successful!`;
-          messageEl.classList.add("success");
-          // Later: redirect to dedicated dashboards for each role.
-        } catch (err) {
-          console.error(err);
-          messageEl.textContent = err.message;
-          messageEl.classList.add("error");
-        }
-      });
-    }
+    <a
+        href="#notices"
+        class="nav-link"
+        data-i18n="notices"
+    >
+        Notices
+    </a>
 
-    // ---- Complaint: GPS + camera ----
-    let currentLat = null;
-    let currentLng = null;
+    <a
+        href="#contact"
+        class="nav-link"
+        data-i18n="contact"
+    >
+        Contact
+    </a>
 
-    const getLocationBtn = document.getElementById("getLocationBtn");
-    const locationInfo = document.getElementById("locationInfo");
-    const submitComplaintBtn = document.getElementById("submitComplaintBtn");
-    const complaintMessageEl = document.getElementById("complaint-message");
+    <button
+        type="button"
+        class="nav-login-btn"
+        data-i18n="login"
+        onclick="openLoginModal()"
+    >
+        Login
+    </button>
 
-    if (getLocationBtn) {
-      getLocationBtn.addEventListener("click", () => {
-        if (!navigator.geolocation) {
-          locationInfo.textContent = "Geolocation not supported on this device.";
-          locationInfo.classList.add("error");
-          return;
-        }
-        locationInfo.textContent = "Capturing location...";
-        locationInfo.classList.remove("error");
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            currentLat = pos.coords.latitude;
-            currentLng = pos.coords.longitude;
-            locationInfo.textContent = `Location captured: ${currentLat.toFixed(5)}, ${currentLng.toFixed(5)}`;
-          },
-          (err) => {
-            console.error(err);
-            locationInfo.textContent = "Unable to capture location.";
-            locationInfo.classList.add("error");
-          }
-        );
-      });
-    }
+    <button
+        type="button"
+        class="nav-register-btn"
+        data-i18n="register"
+        onclick="openRegisterModal()"
+    >
+        Register
+    </button>
 
-    if (submitComplaintBtn) {
-      submitComplaintBtn.addEventListener("click", async () => {
-        const title = document.getElementById("c-title").value.trim();
-        const description = document.getElementById("c-description").value.trim();
-        const category = document.getElementById("c-category").value;
-        const ward = document.getElementById("c-ward").value.trim();
-        const photoInput = document.getElementById("photoInput");
+</nav>
 
-        complaintMessageEl.textContent = "";
-        complaintMessageEl.className = "status info";
+        </div>
 
-        if (!title || !description || !ward) {
-          complaintMessageEl.textContent = "Please fill all fields.";
-          complaintMessageEl.classList.add("error");
-          return;
-        }
-        if (!photoInput.files.length) {
-          complaintMessageEl.textContent = "Please capture photo from camera.";
-          complaintMessageEl.classList.add("error");
-          return;
-        }
-        if (currentLat === null || currentLng === null) {
-          complaintMessageEl.textContent = "Please capture GPS location.";
-          complaintMessageEl.classList.add("error");
-          return;
-        }
+    </header>
 
-        const user = auth.currentUser;
-        if (!user) {
-          complaintMessageEl.textContent = "You must be logged in to submit complaints.";
-          complaintMessageEl.classList.add("error");
-          return;
-        }
 
-        try {
-          complaintMessageEl.textContent = "Uploading photo...";
-          const file = photoInput.files[0];
-          const formData = new FormData();
-          formData.append("image", file);
 
-          // Replace with your backend API (Express + Cloudinary)
-          const uploadRes = await fetch("https://new-e-panchayat.onrender.com/upload-image",{
-            method: "POST",
-            body: formData
-          });
-          const uploadData = await uploadRes.json();
-          if (!uploadRes.ok) {
-            throw new Error(uploadData.message || "Photo upload failed");
-          }
+   <!-- =====================================================
+     HERO
+====================================================== -->
 
-          const photoUrl = uploadData.url;
-          complaintMessageEl.textContent = "Saving complaint...";
+<section
+    class="hero"
+    id="home"
+>
 
-          await db.collection("complaints").add({
-            userId: user.uid,
-            title,
-            description,
-            category,
-            ward,
-            status: "submitted",
-            assignedToRole: "gkm", // Phase 2: proper auto-routing
-            photoUrl,
-            location: {
-              lat: currentLat,
-              lng: currentLng
-            },
-            submittedAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
+    <div class="container hero-container">
 
-          complaintMessageEl.textContent = "Complaint submitted successfully.";
-          complaintMessageEl.classList.add("success");
-          setTimeout(() => {
-            loadDashboard();
-            showView("view-dashboard");
-          }, 1000);
-        } catch (err) {
-          console.error(err);
-          complaintMessageEl.textContent = err.message;
-          complaintMessageEl.classList.add("error");
-        }
-      });
-    }
 
-    // ---- Dashboard: load complaints ----
-    async function loadDashboard() {
-      const complaintsList = document.getElementById("complaintsList");
-      if (!complaintsList) return;
+        <!-- =================================================
+             HERO CONTENT
+        ================================================== -->
 
-      const user = auth.currentUser;
-      if (!user) {
-        complaintsList.innerHTML = "<p class='status info'>Login to see your complaints.</p>";
-        return;
-      }
+        <div class="hero-content">
 
-      complaintsList.innerHTML = "<p class='status info'>Loading complaints...</p>";
 
-      const snapshot = await db
-        .collection("complaints")
-        .where("userId", "==", user.uid)
-        .orderBy("submittedAt", "desc")
-        .get();
+            <div
+                class="government-badge"
+                data-i18n="governmentBadge"
+            >
+                🇮🇳 Digital India · Rural Development
+            </div>
 
-      if (snapshot.empty) {
-        complaintsList.innerHTML = "<p class='status info'>No complaints yet.</p>";
-        return;
-      }
 
-      complaintsList.innerHTML = "";
-      snapshot.forEach((doc) => {
-        const c = doc.data();
-        const div = document.createElement("div");
-        div.className = "list-item";
+            <h1 data-i18n="welcome">
+                Welcome to E-Panchayat
+            </h1>
 
-        const submittedAt =
-          c.submittedAt && c.submittedAt.toDate
-            ? c.submittedAt.toDate().toLocaleString()
-            : "N/A";
 
-        div.innerHTML = `
-          <div class="list-item-title">${c.title}</div>
-          <div class="list-item-meta">
-            <span class="badge status">Status: ${c.status}</span>
-            <span class="badge role">Role: ${c.assignedToRole}</span>
-            <span class="badge ward">Ward: ${c.ward}</span>
-          </div>
-          <div class="list-item-meta">
-            Submitted: ${submittedAt}
-          </div>
-        `;
-        complaintsList.appendChild(div);
-      });
-    }
+            <p
+                class="hero-description"
+                data-i18n="heroDescription"
+            >
+                Bring government services closer to
+                citizens through digital Panchayat governance.
+            </p>
 
-    // Initialize view
-    showView("view-home");
-  </script>
+
+            <p
+                class="hero-secondary"
+                data-i18n="heroSecondary"
+            >
+                Submit complaints, attach real-world
+                photo evidence, capture the complaint
+                location and track action taken by
+                Panchayat officials.
+            </p>
+
+
+            <!-- =================================================
+                 HERO BUTTONS
+            ================================================== -->
+
+            <div class="hero-buttons">
+
+
+                <button
+                    class="primary-btn"
+                    type="button"
+                    onclick="openRegisterModal()"
+                    data-i18n="registerNow"
+                >
+                    📝 Register Now
+                </button>
+
+
+                <button
+                    class="secondary-btn"
+                    type="button"
+                    onclick="openLoginModal()"
+                    data-i18n="citizenLogin"
+                >
+                    🔐 Citizen Login
+                </button>
+
+
+            </div>
+
+
+            <!-- =================================================
+                 HERO STATISTICS
+            ================================================== -->
+
+            <div class="hero-stats">
+
+
+                <div class="stat-item">
+
+                    <strong id="statComplaints">
+                        0
+                    </strong>
+
+                    <span data-i18n="complaintsRegistered">
+                        Complaints Registered
+                    </span>
+
+                </div>
+
+
+                <div class="stat-item">
+
+                    <strong id="statResolved">
+                        0
+                    </strong>
+
+                    <span data-i18n="complaintsResolved">
+                        Complaints Resolved
+                    </span>
+
+                </div>
+
+
+                <div class="stat-item">
+
+                    <strong>
+                        24/7
+                    </strong>
+
+                    <span data-i18n="digitalAccess">
+                        Digital Access
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+        <!-- =================================================
+             HERO IMAGES
+        ================================================== -->
+
+        <div class="hero-images">
+
+
+            <div class="image-card image-one">
+
+                <div class="image-overlay">
+
+                    <strong data-i18n="digitalServices">
+                        Digital Services
+                    </strong>
+
+                    <span data-i18n="accessPanchayatOnline">
+                        Access Panchayat services online
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="image-card image-two">
+
+                <div class="image-overlay">
+
+                    <strong data-i18n="smartGovernance">
+                        Smart Governance
+                    </strong>
+
+                    <span data-i18n="transparentLocalAdministration">
+                        Transparent local administration
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="image-card image-three">
+
+                <div class="image-overlay">
+
+                    <strong data-i18n="citizenFirst">
+                        Citizen First
+                    </strong>
+
+                    <span data-i18n="servicesCloserCommunity">
+                        Services closer to your community
+                    </span>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+</section>
+
+
+    <!-- =====================================================
+     SERVICES
+====================================================== -->
+
+<!-- =========================================================
+     4. PANCHAYAT SERVICES
+========================================================== -->
+
+<section class="services-section" id="services">
+
+    <div class="container">
+
+        <div class="section-heading">
+
+            <span class="section-label">
+                <span data-i18n="servicesLabel">
+                    PANCHAYAT SERVICES
+                </span>
+            </span>
+
+            <h2 data-i18n="panchayatServices">
+                Panchayat Services
+            </h2>
+
+            <p data-i18n="panchayatServicesDescription">
+                Access important digital services from one place.
+            </p>
+
+        </div>
+
+        <div class="service-grid">
+
+            <!-- REGISTER COMPLAINT -->
+            <article class="service-card">
+                <div class="service-icon">📢</div>
+                <h3 data-i18n="registerComplaint">Register Complaint</h3>
+                <p data-i18n="registerComplaintDesc">
+                    Report road, water, sanitation,
+                    waste, electricity and other
+                    local problems.
+                </p>
+                <button type="button" onclick="openComplaintModal()" data-i18n="submitComplaintArrow">
+                    Submit Complaint →
+                </button>
+            </article>
+
+            <!-- TRACK COMPLAINT -->
+            <article class="service-card">
+                <div class="service-icon">🔎</div>
+                <h3 data-i18n="trackComplaint">Track Complaint</h3>
+                <p data-i18n="trackComplaintDesc">
+                    Track your complaint using your Complaint ID.
+                </p>
+                <button type="button" onclick="openComplaintTrackingModal()" data-i18n="trackNow">
+                    Track Now →
+                </button>
+            </article>
+
+            <!-- PANCHAYAT LOCATION -->
+            <article class="service-card">
+                <div class="service-icon">📍</div>
+                <h3 data-i18n="panchayatLocation">Panchayat Location</h3>
+                <p data-i18n="panchayatLocationDesc">
+                    Find your Panchayat office and
+                    important local information.
+                </p>
+                <button type="button" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})" data-i18n="viewContact">
+                    View Contact →
+                </button>
+            </article>
+
+            <!-- NOTICES -->
+            <article class="service-card">
+                <div class="service-icon">📰</div>
+                <h3 data-i18n="noticesService">Notices</h3>
+                <p data-i18n="noticesServiceDesc">
+                    Stay updated with Panchayat notices,
+                    announcements and public information.
+                </p>
+                <button type="button" onclick="document.getElementById('notices').scrollIntoView({behavior:'smooth'})" data-i18n="readNotices">
+                    Read Notices →
+                </button>
+            </article>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     ABOUT
+====================================================== -->
+
+<section
+    class="about-section"
+    id="about"
+>
+
+    <div class="container about-container">
+
+        <div class="about-image">
+
+            <div class="about-image-content">
+
+                <div class="about-emblem">
+                    🏛️
+                </div>
+
+                <h3 data-i18n="digitalPanchayat">
+                    Digital Panchayat
+                </h3>
+
+                <p data-i18n="technologyRuralGovernance">
+                    Technology-enabled rural governance
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="about-content">
+
+            <span class="section-label"
+                  data-i18n="aboutEGramPanchayat">
+                ABOUT E-GRAM PANCHAYAT
+            </span>
+
+
+            <h2 data-i18n="connectingCitizens">
+                Connecting Citizens with Local Governance
+            </h2>
+
+
+            <p data-i18n="aboutDescription1">
+                E-Gram Panchayat is a digital platform designed
+                to make Panchayat services easier and more accessible
+                to citizens.
+            </p>
+
+
+            <p data-i18n="aboutDescription2">
+                Citizens can report real-world problems with
+                photo evidence and GPS location. Authorized officials
+                can inspect complaints and update their status.
+            </p>
+
+
+            <div class="about-points">
+
+                <div>
+                    <span>✓</span>
+                    <span data-i18n="transparentComplaintManagement">
+                        Transparent complaint management
+                    </span>
+                </div>
+
+
+                <div>
+                    <span>✓</span>
+                    <span data-i18n="gpsEnabledComplaintLocation">
+                        GPS-enabled complaint location
+                    </span>
+                </div>
+
+
+                <div>
+                    <span>✓</span>
+                    <span data-i18n="photoEvidenceComplaints">
+                        Photo evidence for complaints
+                    </span>
+                </div>
+
+
+                <div>
+                    <span>✓</span>
+                    <span data-i18n="roleBasedOfficialDashboard">
+                        Role-based official dashboard
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+    <!-- =====================================================
+         COMPLAINT INFORMATION
+    ====================================================== -->
+
+<section class="complaint-process-section" id="complaints">
+
+    <div class="container">
+
+        <div class="section-heading">
+
+            <span class="section-label" data-i18n="smartComplaintSystem">
+                SMART COMPLAINT SYSTEM
+            </span>
+
+            <h2 data-i18n="reportLocalProblem">
+                Report a Local Problem
+            </h2>
+
+            <p data-i18n="reportLocalProblemDescription">
+                Report an issue in your village or town and track its resolution.
+            </p>
+
+        </div>
+
+
+        <div class="complaint-process">
+
+            <!-- STEP 01 -->
+            <div class="process-step">
+
+                <div class="process-number">
+                    01
+                </div>
+
+                <div class="process-content">
+
+                    <h3 data-i18n="registerStep">
+                        Register
+                    </h3>
+
+                    <p data-i18n="registerStepDescription">
+                        Create your citizen account
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- STEP 02 -->
+            <div class="process-step">
+
+                <div class="process-number">
+                    02
+                </div>
+
+                <div class="process-content">
+
+                    <h3 data-i18n="submitStep">
+                        Submit
+                    </h3>
+
+                    <p data-i18n="submitStepDescription">
+                        Add complaint details and photo
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- STEP 03 -->
+            <div class="process-step">
+
+                <div class="process-number">
+                    03
+                </div>
+
+                <div class="process-content">
+
+                    <h3 data-i18n="trackStep">
+                        Track
+                    </h3>
+
+                    <p data-i18n="trackStepDescription">
+                        Monitor complaint status
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- STEP 04 -->
+            <div class="process-step">
+
+                <div class="process-number">
+                    04
+                </div>
+
+                <div class="process-content">
+
+                    <h3 data-i18n="resolveStep">
+                        Resolve
+                    </h3>
+
+                    <p data-i18n="resolveStepDescription">
+                        Officials take action and update status
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ACTION BOX -->
+
+        <div class="complaint-action-box">
+
+            <div class="complaint-action-content">
+
+                <h3 data-i18n="haveProblem">
+                    Have a problem in your area?
+                </h3>
+
+                <p data-i18n="reportDirectly">
+                    Report it directly to your Panchayat.
+                </p>
+
+            </div>
+
+            <button
+                type="button"
+                class="btn btn-primary"
+                onclick="openComplaintModal()"
+                data-i18n="submitComplaint"
+            >
+                🚀 Submit Complaint
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+  <!-- =========================================================
+     NOTICES
+========================================================= -->
+
+<section
+    class="notice-section"
+    id="notices"
+>
+
+    <div class="container">
+
+        <div class="section-heading">
+
+            <span
+                class="section-label"
+                data-i18n="latestInformation"
+            >
+                LATEST INFORMATION
+            </span>
+
+            <h2 data-i18n="noticesAnnouncements">
+                Notices & Announcements
+            </h2>
+
+            <p data-i18n="importantPanchayatInfo">
+                Important information from your Panchayat.
+            </p>
+
+        </div>
+
+
+        <div class="notice-grid">
+
+            <!-- NOTICE 1 -->
+
+            <article class="notice-card">
+
+                <div class="notice-date">
+                    <strong>15</strong>
+                    <span data-i18n="aug">
+                        AUG
+                    </span>
+                </div>
+
+                <div>
+
+                    <span
+                        class="notice-category"
+                        data-i18n="general"
+                    >
+                        GENERAL
+                    </span>
+
+                    <h3 data-i18n="digitalPanchayatServices">
+                        Digital Panchayat Services
+                    </h3>
+
+                    <p data-i18n="digitalPanchayatServicesDescription">
+                        Citizens can access Panchayat services through the online portal.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <!-- NOTICE 2 -->
+
+            <article class="notice-card">
+
+                <div class="notice-date">
+                    <strong>10</strong>
+                    <span data-i18n="aug">
+                        AUG
+                    </span>
+                </div>
+
+                <div>
+
+                    <span
+                        class="notice-category"
+                        data-i18n="notice"
+                    >
+                        NOTICE
+                    </span>
+
+                    <h3 data-i18n="complaintRegistrationNotice">
+                        Complaint Registration
+                    </h3>
+
+                    <p data-i18n="complaintsEncouraged">
+                        Citizens are encouraged to submit complaints through the digital system.
+                    </p>
+
+                </div>
+
+            </article>
+
+
+            <!-- NOTICE 3 -->
+
+            <article class="notice-card">
+
+                <div class="notice-date">
+                    <strong>05</strong>
+                    <span data-i18n="aug">
+                        AUG
+                    </span>
+                </div>
+
+                <div>
+
+                    <span
+                        class="notice-category"
+                        data-i18n="update"
+                    >
+                        UPDATE
+                    </span>
+
+                    <h3 data-i18n="smartGovernanceInitiative">
+                        Smart Governance Initiative
+                    </h3>
+
+                    <p data-i18n="technologyGovernanceServices">
+                        New technology-enabled governance services are being introduced.
+                    </p>
+
+                </div>
+
+            </article>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+    <!-- =====================================================
+     CONTACT
+====================================================== -->
+
+<section
+    class="contact-section"
+    id="contact"
+>
+
+    <div class="container contact-container">
+
+
+        <div class="contact-info">
+
+            <span
+                class="section-label"
+                data-i18n="contactUs"
+            >
+                CONTACT US
+            </span>
+
+            <h2 data-i18n="panchayatOffice">
+                Panchayat Office
+            </h2>
+
+            <p data-i18n="contactAssistance">
+                For assistance, citizens can contact
+                the Panchayat office during working hours.
+            </p>
+
+
+            <div class="contact-item">
+
+                <div class="contact-icon">
+                    📍
+                </div>
+
+                <div>
+
+                    <strong data-i18n="address">
+                        Address
+                    </strong>
+
+                    <span data-i18n="panchayatOfficeAddress">
+                        Gram Panchayat Office,
+                        Your Village, Karnataka, India
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="contact-item">
+
+                <div class="contact-icon">
+                    📞
+                </div>
+
+                <div>
+
+                    <strong data-i18n="phone">
+                        Phone
+                    </strong>
+
+                    <span>
+                        1800-XXX-XXXX
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="contact-item">
+
+                <div class="contact-icon">
+                    ✉️
+                </div>
+
+                <div>
+
+                    <strong data-i18n="email">
+                        Email
+                    </strong>
+
+                    <span>
+                        support@egrampanchayat.gov.in
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <form
+            class="contact-form"
+            id="contactForm"
+        >
+
+            <h3 data-i18n="sendUsMessage">
+                Send Us a Message
+            </h3>
+
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label
+                        for="contactName"
+                        data-i18n="name"
+                    >
+                        Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="contactName"
+                        required
+                        placeholder="Your name"
+                        data-i18n-placeholder="yourName"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label
+                        for="contactEmail"
+                        data-i18n="email"
+                    >
+                        Email
+                    </label>
+
+                    <input
+                        type="email"
+                        id="contactEmail"
+                        required
+                        placeholder="Your email"
+                        data-i18n-placeholder="yourEmail"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label
+                    for="contactMessage"
+                    data-i18n="message"
+                >
+                    Message
+                </label>
+
+                <textarea
+                    id="contactMessage"
+                    rows="5"
+                    required
+                    placeholder="Write your message..."
+                    data-i18n-placeholder="writeYourMessage"
+                ></textarea>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="primary-btn full-btn"
+                data-i18n="sendMessage"
+            >
+                Send Message
+            </button>
+
+
+            <div
+                id="contactStatus"
+                class="form-status"
+            ></div>
+
+        </form>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     FOOTER
+========================================================= -->
+
+<footer class="footer">
+
+    <div class="container footer-main">
+
+        <div class="footer-brand">
+
+            <div class="footer-logo">
+                🏛️
+            </div>
+
+            <div>
+
+                <h3 data-i18n="eGramPanchayat">
+                    E-Gram Panchayat
+                </h3>
+
+                <p data-i18n="footerDescription">
+                    Digital services for transparent
+                    and citizen-focused local governance.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="footer-column">
+
+            <h4 data-i18n="quickLinks">
+                Quick Links
+            </h4>
+
+            <a href="#home" data-i18n="home">
+                Home
+            </a>
+
+            <a href="#about" data-i18n="about">
+                About
+            </a>
+
+            <a href="#services" data-i18n="services">
+                Services
+            </a>
+
+            <a href="#notices" data-i18n="notices">
+                Notices
+            </a>
+
+        </div>
+
+
+        <div class="footer-column">
+
+            <h4 data-i18n="services">
+                Services
+            </h4>
+
+            <a href="#complaints" data-i18n="complaints">
+                Complaints
+            </a>
+
+            <a href="#complaints" data-i18n="trackComplaint">
+                Track Complaint
+            </a>
+
+            <a href="#contact" data-i18n="contact">
+                Contact
+            </a>
+
+        </div>
+
+
+        <div class="footer-column">
+
+            <h4 data-i18n="officialPortal">
+                Official Portal
+            </h4>
+
+            <a
+                href="#"
+                onclick="openOfficialLoginModal(); return false;"
+                data-i18n="officialsLogin"
+            >
+                Officials Login
+            </a>
+
+            <a href="#contact" data-i18n="helpSupport">
+                Help & Support
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="footer-bottom">
+
+        <div class="container">
+
+            <span data-i18n="footerCopyright">
+                © 2026 E-Gram Panchayat.
+                All Rights Reserved.
+            </span>
+
+            <span data-i18n="digitalPanchayatInitiative">
+                Digital Panchayat Initiative
+            </span>
+
+        </div>
+
+    </div>
+
+</footer>
+
+
+<!-- =========================================================
+     END OF HOME VIEW
+========================================================= -->
+
+</div>
+
+
+<!-- =========================================================
+     CITIZEN LOGIN MODAL
+========================================================= -->
+
+<div
+    class="modal"
+    id="loginModal"
+>
+
+    <div class="modal-box">
+
+
+        <button
+            class="modal-close"
+            type="button"
+            onclick="closeModal('loginModal')"
+        >
+            ×
+        </button>
+
+
+        <div class="modal-icon">
+            🔐
+        </div>
+
+
+       <h2 data-i18n="citizenLogin">
+    Citizen Login
+</h2>
+
+       <p data-i18n="citizenLoginDescription">
+    Login to submit and track complaints.
+</p>
+
+        <form id="loginForm">
+
+
+            <div class="form-group">
+
+               <label for="login-email" data-i18n="email">
+    Email
+</label>
+            <input
+                type="email"
+                id="login-email"
+                required
+                autocomplete="email"
+                placeholder="Enter email"
+                data-i18n-placeholder="enterEmail"
+>
+            </div>
+
+
+            <div class="form-group">
+
+               <label for="login-password" data-i18n="password">
+    Password
+</label>
+                <input
+                    type="password"
+                    id="login-password"
+                    required
+                    autocomplete="current-password"
+                    placeholder="Enter password"
+                    data-i18n-placeholder="enterPassword"
+                >
+
+            </div>
+
+
+           <button
+    type="button"
+    id="loginBtn"
+    class="primary-btn full-btn"
+    data-i18n="login"
+>
+    Login
+</button>
+            <div
+                id="login-message"
+                class="form-status"
+            ></div>
+
+
+        </form>
+
+
+       <div class="modal-footer-text">
+    <span data-i18n="newCitizen">New citizen?</span>
+
+    <button
+        type="button"
+        onclick="switchToRegister()"
+        data-i18n="createAccount"
+    >
+        Create Account
+    </button>
+</div>
+
+    </div>
+
+</div>
+
+<!-- =========================================================
+     PUBLIC COMPLAINT TRACKING MODAL
+========================================================= -->
+
+<div
+    class="modal"
+    id="complaintTrackingModal"
+>
+
+    <div class="modal-box">
+
+        <button
+            class="modal-close"
+            type="button"
+            onclick="closeModal('complaintTrackingModal')"
+        >
+            ×
+        </button>
+
+
+        <div class="modal-icon">
+            🔎
+        </div>
+
+
+        <h2 data-i18n="trackComplaintTitle">
+            Track Complaint
+        </h2>
+
+
+        <p data-i18n="trackComplaintDescription">
+            Enter your Complaint ID to check the current status and progress of your complaint.
+        </p>
+
+
+        <form id="complaintTrackingForm">
+
+            <div class="form-group">
+
+                <label
+                    for="tracking-complaint-id"
+                    data-i18n="complaintId"
+                >
+                    Complaint ID
+                </label>
+
+
+                <input
+                    type="text"
+                    id="tracking-complaint-id"
+                    required
+                    autocomplete="off"
+                    placeholder="Enter Complaint ID"
+                    data-i18n-placeholder="enterComplaintIdPlaceholder"
+                >
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="primary-btn full-btn"
+                id="trackComplaintBtn"
+                data-i18n="trackComplaintButton"
+            >
+                🔎 Track Complaint
+            </button>
+
+
+            <div
+                id="complaint-tracking-message"
+                class="form-status"
+            ></div>
+
+        </form>
+
+
+        <!-- =================================================
+             TRACKING RESULT
+        ================================================== -->
+
+        <div
+            id="complaintTrackingResult"
+            class="hidden"
+        ></div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     CITIZEN REGISTER MODAL
+========================================================= -->
+
+<div
+    class="modal"
+    id="registerModal"
+>
+
+    <div class="modal-box">
+
+
+        <button
+            class="modal-close"
+            type="button"
+            onclick="closeModal('registerModal')"
+        >
+            ×
+        </button>
+
+
+        <div class="modal-icon">
+            📝
+        </div>
+
+
+       <h2 data-i18n="citizenRegistration">
+    Citizen Registration
+</h2>
+
+      <p data-i18n="citizenRegistrationDescription">
+    Create your E-Gram Panchayat account.
+</p>
+
+        <form id="registerForm">
+
+
+            <div class="form-group">
+<label for="reg-name" data-i18n="fullName">
+    Full Name
+</label>
+
+                <input
+                    type="text"
+                    id="reg-name"
+                    required
+                    maxlength="100"
+                    autocomplete="name"
+                    placeholder="Enter full name"
+                    data-i18n-placeholder="enterFullName"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+           <label for="reg-email" data-i18n="email">
+    Email
+</label>
+
+                <input
+                    type="email"
+                    id="reg-email"
+                    required
+                    autocomplete="email"
+                    placeholder="Enter email"
+                    data-i18n-placeholder="enterEmail"  
+                >
+
+            </div>
+
+
+            <div class="form-row">
+
+
+             <div class="form-group">
+
+    <label for="reg-phone" data-i18n="phone">
+        Phone
+    </label>
+
+    <input
+        type="tel"
+        id="reg-phone"
+        required
+        minlength="10"
+        maxlength="10"
+        pattern="[6-9][0-9]{9}"
+        inputmode="numeric"
+        autocomplete="tel"
+        placeholder="Phone number"
+        data-i18n-placeholder="enterPhone"
+    >
+
+</div>
+
+                <div class="form-group">
+
+                  <label for="reg-village" data-i18n="village">
+    Village
+</label>
+<input
+    type="text"
+    id="reg-village"
+    required
+    placeholder="Village"
+    data-i18n-placeholder="enterVillage"
+>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="form-group">
+<label for="reg-password" data-i18n="password">
+    Password
+</label>
+
+              <input
+    type="password"
+    id="reg-password"
+    required
+    minlength="6"
+    autocomplete="new-password"
+    placeholder="Minimum 6 characters"
+    data-i18n-placeholder="minimumPasswordLength"
+>
+
+            </div>
+
+
+          <button
+    type="submit"
+    id="registerBtn"
+    class="primary-btn full-btn"
+    data-i18n="register"
+>
+    Create Account
+</button>
+            <div
+                id="reg-message"
+                class="form-status"
+            ></div>
+
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     COMPLAINT MODAL
+========================================================= -->
+
+<div
+    class="modal"
+    id="complaintModal"
+>
+
+    <div class="modal-box complaint-modal">
+
+
+        <button
+            class="modal-close"
+            type="button"
+            onclick="closeModal('complaintModal')"
+        >
+            ×
+        </button>
+
+
+        <div class="modal-icon">
+            📢
+        </div>
+
+
+      <h2 data-i18n="registerComplaint">
+    Register Complaint
+</h2>
+
+
+        <p>
+            Provide accurate information and evidence
+            about the local issue.
+        </p>
+
+
+        <form id="complaintForm">
+
+
+            <!-- =================================================
+                 LOCATION / PANCHAYAT DETAILS
+            ================================================== -->
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                  <label for="c-state" data-i18n="state">
+    State
+</label>
+
+                    <input
+                        type="text"
+                        id="c-state"
+                        maxlength="100"
+                        required
+                        placeholder="Enter state"
+                        data-i18n-placeholder="enterState"  
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                 <label for="c-district" data-i18n="district">
+    District
+</label>
+
+                    <input
+                        type="text"
+                        id="c-district"
+                        maxlength="100"
+                        required
+                        placeholder="Enter district"
+                        data-i18n-placeholder="enterDistrict"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="c-taluk" data-i18n="taluk">
+                        Taluk
+                    </label>
+
+                    <input
+                        type="text"
+                        id="c-taluk"
+                        maxlength="100"
+                        required
+                        placeholder="Enter taluk"
+                        data-i18n-placeholder="enterTaluk"  
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                <label for="c-village" data-i18n="village">
+    Village
+</label>
+                    <input
+                        type="text"
+                        id="c-village"
+                        maxlength="100"
+                        required
+                        placeholder="Enter village"
+                        data-i18n-placeholder="enterVillage"        
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 PROBLEM CATEGORY
+            ================================================== -->
+
+            <div class="form-group">
+
+             <label for="c-problem" data-i18n="problem">
+    Problem
+</label>
+               <select
+    id="c-problem"
+    required
+>
+    <option value="" data-i18n="selectProblem">
+        Select Problem
+    </option>
+
+    <option value="Road Damage" data-i18n="roadDamage">
+        Road Damage
+    </option>
+
+    <option value="Water Problem" data-i18n="waterProblem">
+        Water Problem
+    </option>
+
+    <option value="Government Property Problem" data-i18n="governmentPropertyProblem">
+        Government Property Problem
+    </option>
+
+    <option value="Government Scheme Problem" data-i18n="governmentSchemeProblem">
+        Government Scheme Problem
+    </option>
+
+    <option value="Drainage Problem" data-i18n="drainageProblem">
+        Drainage Problem
+    </option>
+
+    <option value="Street Light Problem" data-i18n="streetLightProblem">
+        Street Light Problem
+    </option>
+
+    <option value="Garbage / Sanitation Problem" data-i18n="garbageSanitationProblem">
+        Garbage / Sanitation Problem
+    </option>
+
+    <option value="Other" data-i18n="other">
+        Other
+    </option>
+</select>
+</div>  
+
+            <!-- =================================================
+                 DESCRIPTION
+            ================================================== -->
+
+            <div class="form-group">
+
+             <label for="c-description" data-i18n="description">
+    Description
+</label>
+              <textarea
+    id="c-description"
+    rows="5"
+    maxlength="2000"
+    required
+    placeholder="Describe the problem clearly..."
+    data-i18n-placeholder="describeProblem"
+></textarea>
+            </div>
+
+
+            <!-- =================================================
+                 GPS
+            ================================================== -->
+
+            <div class="location-box">
+
+                <div style="width:100%;">
+                    <strong data-i18n="complaintLocation">
+                        📍 Complaint Location
+                    </strong>
+
+                    <p id="locationInfo" data-i18n="locationNotCaptured">
+                        Location not captured.
+                    </p>
+
+                    <div id="complaintMap" aria-label="Interactive complaint location map"></div>
+
+                    <p id="locationHint">
+                        📌 GPS found your current position. Drag the marker to the exact location of the problem, then confirm it.
+                    </p>
+
+                    <button type="button" class="secondary-btn small-btn" id="getLocationBtn" data-i18n="getGPS">
+                        📍 Find My Location
+                    </button>
+
+                    <button
+                        type="button"
+                        class="primary-btn small-btn"
+                        id="confirmLocationBtn"
+                        data-i18n="confirmProblemLocationButton"
+                    >
+                        ✓ Confirm Problem Location
+                    </button>
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 CAMERA
+            ================================================== -->
+
+            <div class="form-group">
+
+
+            <label data-i18n="complaintPhotoEvidence">
+    📷 Complaint Photo Evidence
+</label>
+
+
+                <div
+                    class="camera-box hidden"
+                    id="cameraContainer"
+                >
+
+
+                    <video
+                        id="cameraVideo"
+                        autoplay
+                        playsinline
+                        muted
+                    ></video>
+
+
+                    <canvas
+                        id="cameraCanvas"
+                    ></canvas>
+
+
+                    <div class="camera-buttons">
+
+
+                     <button
+    type="button"
+    class="primary-btn small-btn"
+    id="capturePhotoBtn"
+    data-i18n="capturePhoto"
+>
+    📸 Capture Photo
+</button>
+<button
+    type="button"
+    class="secondary-btn small-btn"
+    id="closeCameraBtn"
+    data-i18n="closeCamera"
+>
+    ✕ Close Camera
+</button>
+
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="camera-buttons">
+
+                   <button
+    type="button"
+    class="secondary-btn small-btn"
+    id="openCameraBtn"
+    data-i18n="openCamera"
+>
+    📷 Open Camera
+</button>
+                </div>
+
+
+                <!-- =================================================
+                     PHOTO PREVIEW
+                ================================================== -->
+
+                <div class="photo-preview-box">
+
+
+                    <img
+                        id="photoPreview"
+                        alt="Complaint photo preview"
+                        class="hidden"
+                    >
+
+
+                    <div class="camera-buttons">
+<button
+    type="button"
+    class="secondary-btn small-btn hidden"
+    id="removePhotoBtn"
+    data-i18n="removePhoto"
+>
+    🗑️ Remove Photo
+</button>
+                    </div>
+
+
+                </div>
+
+
+                <!-- =================================================
+                     FALLBACK FILE INPUT
+                ================================================== -->
+
+                <input
+                    type="file"
+                    id="photoInput"
+                    accept="image/jpeg,image/png,image/jpg"
+                >
+
+<p
+    id="photoStatus"
+    class="form-status"
+    data-i18n="photoStatus"
+>
+    Capture a clear photo showing the problem.
+</p>
+
+            </div>
+
+
+            <!-- =================================================
+                 SUBMIT
+            ================================================== -->
+
+          <button
+    type="submit"
+    class="primary-btn full-btn"
+    id="submitComplaintBtn"
+    data-i18n="submitComplaint"
+>
+    🚀 Submit Complaint
+</button>
+            <div
+                id="complaint-message"
+                class="form-status"
+            ></div>
+
+
+            <div
+                id="generatedComplaintId"
+                class="status success hidden"
+            ></div>
+
+
+        </form>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     CITIZEN DASHBOARD
+========================================================= -->
+
+<section
+    id="view-dashboard"
+    class="dashboard-view hidden"
+>
+
+    <div class="container">
+
+
+        <div class="dashboard-header">
+
+
+            <div>
+
+                <span
+                    class="section-label"
+                    data-i18n="citizenPortal"
+                >
+                    CITIZEN PORTAL
+                </span>
+
+                <h2 data-i18n="myDashboard">
+                    My Dashboard
+                </h2>
+
+                <p data-i18n="dashboardDescription">
+                    Submit complaints and track their progress.
+                </p>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="secondary-btn"
+                onclick="logoutAndHome()"
+                data-i18n="logout"
+            >
+                Logout
+            </button>
+
+
+        </div>
+
+
+
+        <!-- =================================================
+             PROFILE
+        ================================================== -->
+
+        <div class="dashboard-card">
+
+            <h3 data-i18n="myProfile">
+                My Profile
+            </h3>
+
+
+            <div class="profile-grid">
+
+
+                <div>
+
+                    <strong data-i18n="name">
+                        Name
+                    </strong>
+
+                    <span id="citizenName">
+                        -
+                    </span>
+
+                </div>
+
+
+                <div>
+
+                    <strong data-i18n="email">
+                        Email
+                    </strong>
+
+                    <span id="citizenEmail">
+                        -
+                    </span>
+
+                </div>
+
+
+                <div>
+
+                    <strong data-i18n="phone">
+                        Phone
+                    </strong>
+
+                    <span id="citizenPhone">
+                        -
+                    </span>
+
+                </div>
+
+
+                <div>
+
+                    <strong data-i18n="village">
+                        Village
+                    </strong>
+
+                    <span id="citizenVillage">
+                        -
+                    </span>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             ACTIONS
+        ================================================== -->
+
+        <div class="dashboard-actions">
+
+
+            <button
+                type="button"
+                class="primary-btn"
+                onclick="openComplaintModal()"
+                data-i18n="newComplaint"
+            >
+                📢 New Complaint
+            </button>
+
+
+            <button
+                type="button"
+                class="secondary-btn"
+                onclick="loadDashboard()"
+                data-i18n="refreshComplaints"
+            >
+                🔄 Refresh Complaints
+            </button>
+
+
+        </div>
+
+
+
+        <!-- =================================================
+             COMPLAINTS
+        ================================================== -->
+
+        <div class="dashboard-card">
+
+
+            <div class="dashboard-card-header">
+
+                <div>
+
+                    <h3 data-i18n="myComplaints">
+                        My Complaints
+                    </h3>
+
+                    <p data-i18n="viewSubmittedComplaints">
+                        View your submitted complaints
+                        and current status.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="complaintsList"
+                class="complaints-list"
+            ></div>
+
+
+        </div>
+
+
+    </div>
+
+</section>
+
+<!-- =========================================================
+     OFFICIAL LOGIN
+========================================================= -->
+
+<div
+    class="modal"
+    id="officialLoginModal"
+>
+
+    <div class="modal-box">
+
+
+        <button
+            class="modal-close"
+            type="button"
+            onclick="closeModal('officialLoginModal')"
+            aria-label="Close"
+        >
+            ×
+        </button>
+
+
+        <div class="modal-icon">
+            🏛️
+        </div>
+
+
+        <h2 data-i18n="officialsPortal">
+            Officials Portal
+        </h2>
+
+
+        <p data-i18n="officialLoginDescription">
+            Authorized Panchayat officials only.
+        </p>
+
+
+        <form id="officialLoginForm">
+
+
+            <!-- OFFICIAL EMAIL -->
+
+            <div class="form-group">
+
+                <label
+                    for="admin-email"
+                    data-i18n="officialEmail"
+                >
+                    Official Email
+                </label>
+
+                <input
+                    type="email"
+                    id="admin-email"
+                    required
+                    autocomplete="username"
+                  placeholder="Official Email"
+                    data-i18n-placeholder="officialEmail"
+                >
+
+            </div>
+
+
+            <!-- PASSWORD -->
+
+            <div class="form-group">
+
+                <label
+                    for="admin-password"
+                    data-i18n="password"
+                >
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="admin-password"
+                    required
+                    autocomplete="current-password"
+                 placeholder="Enter password"
+data-i18n-placeholder="enterPassword"
+                >
+
+            </div>
+
+
+            <!-- ROLE -->
+
+            <div class="form-group">
+
+                <label
+                    for="admin-role"
+                    data-i18n="role"
+                >
+                    Role
+                </label>
+
+
+                <select
+                    id="admin-role"
+                    required
+                >
+
+                    <option
+                        value=""
+                        data-i18n="selectRole"
+                    >
+                        Select Role
+                    </option>
+
+
+                    <option
+                        value="admin"
+                        data-i18n="admin"
+                    >
+                        Admin
+                    </option>
+
+
+                    <option
+                        value="gkm"
+                        data-i18n="gkm"
+                    >
+                        GKM
+                    </option>
+
+
+                    <option
+                        value="pdo"
+                        data-i18n="pdo"
+                    >
+                        PDO
+                    </option>
+
+
+                    <option
+                        value="eo"
+                        data-i18n="eo"
+                    >
+                        EO
+                    </option>
+
+
+                    <option
+                        value="ceo"
+                        data-i18n="ceo"
+                    >
+                        CEO
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- LOGIN BUTTON -->
+
+            <button
+                type="button"
+                id="adminLoginBtn"
+                class="primary-btn full-btn"
+                data-i18n="officialsLogin"
+            >
+                🏛️ Officials Login
+            </button>
+
+
+            <div
+                id="admin-message"
+                class="form-status"
+            ></div>
+
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- =========================================================
+     OFFICIAL LOGIN VIEW
+========================================================= -->
+
+<section
+    id="view-admin-login"
+    class="dashboard-view hidden"
+>
+
+    <div class="container">
+
+        <div class="dashboard-card">
+
+            <h2 data-i18n="officialsPortal">
+                Officials Portal
+            </h2>
+
+            <p data-i18n="officialLoginDescription">
+                Authorized Panchayat officials only.
+            </p>
+
+
+            <button
+                type="button"
+                class="primary-btn"
+                onclick="openOfficialLoginModal()"
+                data-i18n="officialsLogin"
+            >
+                Officials Login
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =========================================================
+     OFFICIAL DASHBOARD
+========================================================= -->
+
+<section
+    id="view-official-dashboard"
+    class="dashboard-view hidden"
+>
+
+    <div class="container">
+
+
+        <div class="dashboard-header">
+
+
+            <div>
+
+                <span
+                    class="section-label"
+                    data-i18n="officialPortal"
+                >
+                    OFFICIAL PORTAL
+                </span>
+
+                <h2 data-i18n="complaintManagement">
+                    Complaint Management
+                </h2>
+
+                <p data-i18n="officialDashboardDescription">
+                    Review citizen complaints,
+                    evidence and locations.
+                </p>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="secondary-btn"
+                onclick="officialLogout()"
+                data-i18n="logout"
+            >
+                Logout
+            </button>
+
+
+        </div>
+
+
+
+        <!-- =================================================
+             OFFICIAL PROFILE
+        ================================================== -->
+
+        <div class="dashboard-card">
+
+            <h3 data-i18n="officialAccount">
+                Official Account
+            </h3>
+
+
+            <div class="profile-grid">
+
+
+                <div>
+
+                    <strong data-i18n="role">
+                        Role
+                    </strong>
+
+                    <span id="officialRoleText">
+                        -
+                    </span>
+
+                </div>
+
+
+                <div>
+
+                    <strong data-i18n="email">
+                        Email
+                    </strong>
+
+                    <span id="officialEmailText">
+                        -
+                    </span>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             RIGHT PANEL COMPATIBILITY
+        ================================================== -->
+
+        <div class="dashboard-card">
+
+            <span
+                id="rightPanelBadge"
+                class="badge"
+                data-i18n="officials"
+            >
+                Officials
+            </span>
+
+
+            <h3
+                id="rightPanelTitle"
+                data-i18n="officialsPortal"
+            >
+                Officials Portal
+            </h3>
+
+
+            <p
+                id="rightPanelCaption"
+                data-i18n="governmentOfficials"
+            >
+                Government officials complaint management
+            </p>
+
+        </div>
+
+
+
+        <!-- =================================================
+             OFFICIAL COMPLAINTS
+        ================================================== -->
+
+        <div class="dashboard-card">
+
+
+            <div class="dashboard-card-header">
+
+
+                <div>
+
+                    <h3 data-i18n="complaintReview">
+                        Complaint Review
+                    </h3>
+
+                    <p data-i18n="complaintReviewDescription">
+                        Check complaint information
+                        and update action status.
+                    </p>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="secondary-btn"
+                    onclick="loadOfficialDashboard()"
+                    data-i18n="refresh"
+                >
+                    🔄 Refresh
+                </button>
+
+
+            </div>
+
+
+            <div
+                id="officialComplaintsList"
+                class="complaints-list"
+            ></div>
+
+
+        </div>
+
+
+    </div>
+
+</section>
+
+<!-- =========================================================
+     GENERAL VIEW HELPERS
+========================================================= -->
+
+<div
+    id="view-register"
+    class="hidden"
+></div>
+
+
+<div
+    id="view-login"
+    class="hidden"
+></div>
+
+
+<div
+    id="view-complaint"
+    class="hidden"
+></div>
+
+
+
+<!-- =========================================================
+     GENERAL TOAST
+========================================================= -->
+
+<div
+    id="toast"
+    class="toast"
+></div>
+
+
+
+<!-- =========================================================
+     GENERAL NOTICE
+========================================================= -->
+
+<div
+    id="notice"
+    class="toast"
+></div>
+
+
+
+<!-- =========================================================
+     SCRIPT
+========================================================= -->
+
+<!-- Step 1: Leaflet map library -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+<script src="./script.js"></script>
+
+
 </body>
+
 </html>

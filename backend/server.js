@@ -1,175 +1,616 @@
-require("dotenv").config();
+/* =========================================================
+   E-PANCHAYAT BACKEND
+   MAIN SERVER
+========================================================= */
 
 const express = require("express");
+const mongoose = require("mongoose");
 const cors = require("cors");
-const multer = require("multer");
-const cloudinary = require("cloudinary").v2;
+const path = require("path");
+const {
+  startComplaintScheduler,
+} = require("./services/complaintScheduler");
+const fs = require("fs");
+
+require("dotenv").config();
+
+
+/* =========================================================
+   1. APP CONFIGURATION
+========================================================= */
 
 const app = express();
 
-const PORT = process.env.PORT || 5000;
+const PORT =
+  Number(process.env.PORT) || 5000;
 
-// ==========================================
-// MIDDLEWARE
-// ==========================================
+
+/* =========================================================
+   2. UPLOADS DIRECTORY
+========================================================= */
+
+const uploadsPath = path.join(
+  __dirname,
+  "uploads"
+);
+
+if (!fs.existsSync(uploadsPath)) {
+  fs.mkdirSync(uploadsPath, {
+    recursive: true,
+  });
+}
+
+
+/* =========================================================
+   3. CORS CONFIGURATION
+========================================================= */
+
+const allowedOrigins =
+  process.env.FRONTEND_URL
+    ? process.env.FRONTEND_URL
+        .split(",")
+        .map((origin) => origin.trim())
+        .filter(Boolean)
+    : [];
 
 app.use(
-    cors({
-        origin: "*",
-        methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-        allowedHeaders: ["Content-Type", "Authorization"]
-    })
-);
+  cors({
+    origin: function (
+      origin,
+      callback
+    ) {
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+      // Allow Postman, curl and server-to-server requests
+      if (!origin) {
+        return callback(
+          null,
+          true
+        );
+      }
 
-// ==========================================
-// CLOUDINARY CONFIGURATION
-// ==========================================
+      // Development mode
+      if (
+        allowedOrigins.length === 0
+      ) {
+        return callback(
+          null,
+          true
+        );
+      }
 
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET
-});
+      // Production mode
+      if (
+        allowedOrigins.includes(
+          origin
+        )
+      ) {
+        return callback(
+          null,
+          true
+        );
+      }
 
-// ==========================================
-// MULTER CONFIGURATION
-// ==========================================
-
-const upload = multer({
-    storage: multer.memoryStorage(),
-
-    limits: {
-        fileSize: 5 * 1024 * 1024
+      return callback(
+        new Error(
+          "CORS origin not allowed."
+        )
+      );
     },
 
-    fileFilter: (req, file, cb) => {
-        if (file.mimetype.startsWith("image/")) {
-            cb(null, true);
-        } else {
-            cb(new Error("Only image files are allowed."));
-        }
-    }
-});
-
-// ==========================================
-// TEST ROUTE
-// ==========================================
-
-app.get("/", (req, res) => {
-    res.json({
-        success: true,
-        message: "E-Panchayat Backend is running",
-        service: "Node.js + Express + Cloudinary"
-    });
-});
-
-// ==========================================
-// IMAGE UPLOAD ROUTE
-// ==========================================
-
-app.post(
-    "/upload-image",
-    upload.single("image"),
-    async (req, res) => {
-
-        try {
-
-            if (!req.file) {
-                return res.status(400).json({
-                    success: false,
-                    message: "No image received."
-                });
-            }
-
-            console.log("Image received:", req.file.originalname);
-
-            const result = await new Promise((resolve, reject) => {
-
-                const stream = cloudinary.uploader.upload_stream(
-                    {
-                        folder: "e-panchayat/complaints",
-                        resource_type: "image"
-                    },
-
-                    (error, result) => {
-
-                        if (error) {
-                            reject(error);
-                        } else {
-                            resolve(result);
-                        }
-
-                    }
-                );
-
-                stream.end(req.file.buffer);
-
-            });
-
-            console.log("Image uploaded to Cloudinary");
-
-            return res.status(200).json({
-
-                success: true,
-
-                message: "Image uploaded successfully.",
-
-                url: result.secure_url,
-
-                public_id: result.public_id
-
-            });
-
-        } catch (error) {
-
-            console.error("Cloudinary upload error:", error);
-
-            return res.status(500).json({
-
-                success: false,
-
-                message: "Image upload failed.",
-
-                error: error.message
-
-            });
-
-        }
-
-    }
+    credentials: true,
+  })
 );
 
-// ==========================================
-// ERROR HANDLER
-// ==========================================
 
-app.use((error, req, res, next) => {
+/* =========================================================
+   4. BODY PARSERS
+========================================================= */
 
-    console.error("Server error:", error);
+app.use(
+  express.json({
+    limit: "2mb",
+  })
+);
 
-    return res.status(500).json({
+app.use(
+  express.urlencoded({
+    extended: true,
+    limit: "2mb",
+  })
+);
 
-        success: false,
 
-        message: error.message || "Internal server error."
+/* =========================================================
+   5. SERVE UPLOADED FILES
+========================================================= */
 
+app.use(
+  "/uploads",
+  express.static(
+    uploadsPath
+  )
+);
+
+
+/* =========================================================
+   6. LOAD ROUTES
+========================================================= */
+
+const authRoutes =
+  require(
+    "./routes/authRoutes"
+  );
+
+const userRoutes =
+  require(
+    "./routes/userRoutes"
+  );
+
+const complaintRoutes =
+  require(
+    "./routes/complaintRoutes"
+  );
+
+
+/* =========================================================
+   7. AUTHENTICATION ROUTES
+========================================================= */
+
+app.use(
+  "/api/auth",
+  authRoutes
+);
+
+
+/* =========================================================
+   8. USER ROUTES
+========================================================= */
+
+/*
+ * userRoutes.js:
+ *
+ * router.get("/profile", protect, ...)
+ *
+ * Mounted here:
+ *
+ * /api/users
+ *
+ * Final endpoint:
+ *
+ * GET /api/users/profile
+ */
+
+app.use(
+  "/api/users",
+  userRoutes
+);
+
+
+/* =========================================================
+   9. COMPLAINT ROUTES
+========================================================= */
+
+app.use(
+  "/api/complaints",
+  complaintRoutes
+);
+
+
+/* =========================================================
+   10. ROOT HEALTH CHECK
+========================================================= */
+
+app.get(
+  "/",
+  function (req, res) {
+
+    return res.status(200).json({
+      success: true,
+      message:
+        "E-Panchayat API is running",
+      service:
+        "e-panchayat-backend",
+      status: "online",
     });
 
-});
+  }
+);
 
-// ==========================================
-// START SERVER
-// ==========================================
 
-app.listen(PORT, "0.0.0.0", () => {
+/* =========================================================
+   11. API HEALTH CHECK
+========================================================= */
 
-    console.log("--------------------------------------");
-    console.log("       E-PANCHAYAT BACKEND");
-    console.log("--------------------------------------");
-    console.log(`Server running on port ${PORT}`);
-    console.log("--------------------------------------");
+app.get(
+  "/api/health",
+  function (req, res) {
 
-});
+    const mongoState =
+      mongoose.connection
+        .readyState;
+
+    /*
+     * 0 = disconnected
+     * 1 = connected
+     * 2 = connecting
+     * 3 = disconnecting
+     */
+
+    const mongoConnected =
+      mongoState === 1;
+
+    return res
+      .status(
+        mongoConnected
+          ? 200
+          : 503
+      )
+      .json({
+
+        success:
+          mongoConnected,
+
+        backend:
+          "online",
+
+        database:
+          mongoConnected
+            ? "connected"
+            : "not connected",
+
+        timestamp:
+          new Date().toISOString(),
+      });
+
+  }
+);
+
+
+/* =========================================================
+   12. 404 HANDLER
+========================================================= */
+
+app.use(
+  function (req, res) {
+
+    return res.status(404).json({
+      success: false,
+
+      message:
+        `Route not found: ${req.method} ${req.originalUrl}`,
+    });
+
+  }
+);
+
+
+/* =========================================================
+   13. GLOBAL ERROR HANDLER
+========================================================= */
+
+app.use(
+  function (
+    error,
+    req,
+    res,
+    next
+  ) {
+
+    console.error(
+      "=========================================="
+    );
+
+    console.error(
+      "SERVER ERROR"
+    );
+
+    console.error(
+      "=========================================="
+    );
+
+    console.error(error);
+
+
+    // CORS error
+    if (
+      error.message ===
+      "CORS origin not allowed."
+    ) {
+
+      return res.status(403).json({
+        success: false,
+        message:
+          "CORS origin not allowed.",
+      });
+
+    }
+
+
+    // Multer upload error
+    if (
+      error.name ===
+      "MulterError"
+    ) {
+
+      return res.status(400).json({
+        success: false,
+        message:
+          error.message ||
+          "File upload failed.",
+      });
+
+    }
+
+
+    const statusCode =
+      Number(
+        error.status ||
+        error.statusCode ||
+        500
+      );
+
+    return res
+      .status(
+        statusCode >= 400 &&
+        statusCode < 600
+          ? statusCode
+          : 500
+      )
+      .json({
+        success: false,
+
+        message:
+          error.message ||
+          "Internal server error",
+      });
+
+  }
+);
+
+
+/* =========================================================
+   14. MONGODB URI
+========================================================= */
+
+const MONGO_URI =
+  process.env.MONGO_URI ||
+  process.env.MONGODB_URI ||
+  process.env.MONGO_URL ||
+  process.env.DATABASE_URL;
+
+
+if (!MONGO_URI) {
+
+  console.error(
+    "=========================================="
+  );
+
+  console.error(
+    "ERROR: MONGODB URI NOT FOUND"
+  );
+
+  console.error(
+    "=========================================="
+  );
+
+  console.error(
+    "Expected one of:"
+  );
+
+  console.error(
+    "MONGO_URI"
+  );
+
+  console.error(
+    "MONGODB_URI"
+  );
+
+  console.error(
+    "MONGO_URL"
+  );
+
+  console.error(
+    "DATABASE_URL"
+  );
+
+  console.error(
+    "=========================================="
+  );
+
+  process.exit(1);
+}
+
+
+/* =========================================================
+   15. START SERVER
+========================================================= */
+
+async function startServer() {
+
+  try {
+
+    console.log(
+      "=========================================="
+    );
+
+    console.log(
+      "E-PANCHAYAT BACKEND"
+    );
+
+    console.log(
+      "=========================================="
+    );
+
+    console.log(
+      "Connecting to MongoDB..."
+    );
+
+    console.log(
+      "=========================================="
+    );
+
+
+    /* ------------------------------------------
+       CONNECT TO MONGODB
+    ------------------------------------------ */
+
+    await mongoose.connect(
+      MONGO_URI
+    );
+
+
+    console.log(
+      "=========================================="
+    );
+
+    console.log(
+      "MongoDB Atlas connected successfully"
+    );
+
+    console.log(
+      "=========================================="
+    );
+
+
+    /* ------------------------------------------
+       START EXPRESS SERVER
+    ------------------------------------------ */
+
+    app.listen(
+      PORT,
+      function () {
+
+        console.log(
+          "=========================================="
+        );
+
+        console.log(
+          "E-PANCHAYAT BACKEND"
+        );
+
+        console.log(
+          "=========================================="
+        );
+
+        console.log(
+          `Server running on port ${PORT}`
+        );
+
+        console.log(
+          `http://localhost:${PORT}`
+        );
+
+        console.log(
+          `Health check: http://localhost:${PORT}/api/health`
+        );
+
+        console.log(
+          "=========================================="
+        );
+
+        console.log(
+          "Available API routes:"
+        );
+
+        console.log(
+          `POST http://localhost:${PORT}/api/auth/register`
+        );
+
+        console.log(
+          `POST http://localhost:${PORT}/api/auth/login`
+        );
+
+        console.log(
+          `GET  http://localhost:${PORT}/api/auth/me`
+        );
+
+        console.log(
+          `GET  http://localhost:${PORT}/api/users/profile`
+        );
+
+        console.log(
+          `POST http://localhost:${PORT}/api/complaints`
+        );
+
+        console.log(
+          `GET  http://localhost:${PORT}/api/complaints/my`
+        );
+
+        console.log(
+          `GET  http://localhost:${PORT}/api/complaints/:id`
+        );
+
+        console.log(
+          "=========================================="
+        );
+
+        console.log(
+          `Uploads folder: ${uploadsPath}`
+        );
+
+        console.log(
+          `Upload URL: http://localhost:${PORT}/uploads/<filename>`
+        );
+
+        console.log(
+          "=========================================="
+        );
+
+ startComplaintScheduler();
+      }
+    );
+
+  }
+  catch (error) {
+
+    console.error(
+      "=========================================="
+    );
+
+    console.error(
+      "SERVER STARTUP FAILED"
+    );
+
+    console.error(
+      "=========================================="
+    );
+
+    console.error(
+      error.message
+    );
+
+    console.error(
+      "=========================================="
+    );
+
+    try {
+
+      await mongoose.disconnect();
+
+    }
+    catch (disconnectError) {
+
+      console.error(
+        "MongoDB disconnect error:",
+        disconnectError.message
+      );
+
+    }
+
+    process.exit(1);
+  }
+}
+
+
+/* =========================================================
+   16. START APPLICATION
+========================================================= */
+
+startServer();
+
+
+/* =========================================================
+   17. EXPORT APP
+========================================================= */
+
+module.exports = app;
